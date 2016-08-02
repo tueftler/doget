@@ -1,15 +1,15 @@
 package main
 
 import (
-    "bufio"
-    "io"
-    "fmt"
-    "os"
-    "strings"
-    "regexp"
-    "net/http"
     "archive/zip"
+    "bufio"
+    "fmt"
+    "io"
+    "net/http"
+    "os"
     "path/filepath"
+    "regexp"
+    "strings"
 )
 
 func Unzip(src, dest string, base *strings.Replacer) error {
@@ -91,19 +91,19 @@ func Download(uri, file string) (int64, error) {
     return size, nil
 }
 
-func Transform(input string, base string, yield func(string)) (error) {
+func Transform(input string, base string, yield func(string)) error {
     transformations := map[string]func([]string) error{
-        "FROM (.+)"    : func(matches []string) error {
+        "FROM (.+)": func(matches []string) error {
             if "" == base {
                 base = matches[1]
                 yield("FROM " + base)
                 return nil
-            } else if (matches[1] == base) {
+            } else if matches[1] == base {
                 return nil
             }
             return fmt.Errorf("Expecting %q, have %q in %q", base, matches[1], input)
         },
-        "INCLUDE (.+)" : func(matches []string) error {
+        "INCLUDE (.+)": func(matches []string) error {
             yield("# Included from " + matches[1])
 
             include := regexp.MustCompile("github.com/([^/]+)/([^/]+)").FindStringSubmatch(matches[1])
@@ -118,12 +118,12 @@ func Transform(input string, base string, yield func(string)) (error) {
                     return err
                 }
 
-                _, err := Download("https://github.com/" + vendor + "/" + name + "/archive/master.zip", zip)
+                _, err := Download("https://github.com/"+vendor+"/"+name+"/archive/master.zip", zip)
                 if err != nil {
                     return err
                 }
 
-                if err := Unzip(zip, target, strings.NewReplacer(name + "-master/", "")); err != nil {
+                if err := Unzip(zip, target, strings.NewReplacer(name+"-master/", "")); err != nil {
                     return err
                 }
 
@@ -154,7 +154,7 @@ func Transform(input string, base string, yield func(string)) (error) {
                 break
             }
         }
-        
+
         if !transformed {
             yield(line)
         }
@@ -170,7 +170,7 @@ func Transform(input string, base string, yield func(string)) (error) {
 func main() {
     err := Transform("Dockerfile.in", "", func(line string) { fmt.Println(line) })
 
-    if (err != nil) {
+    if err != nil {
         fmt.Println(err)
         os.Exit(1)
     }
