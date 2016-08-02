@@ -91,17 +91,21 @@ func Download(uri, file string) (int64, error) {
     return size, nil
 }
 
-func Transform(input string, base string, yield func(string)) error {
+func Transform(input, parent, base string, yield func(string)) error {
     transformations := map[string]func([]string) error{
         "FROM (.+)": func(matches []string) error {
-            if "" == base {
-                base = matches[1]
-                yield("FROM " + base)
+            if "" == parent {
+                parent = matches[1]
+                yield("FROM " + parent)
                 return nil
-            } else if matches[1] == base {
+            } else if matches[1] == parent {
                 return nil
             }
-            return fmt.Errorf("Expecting %q, have %q in %q", base, matches[1], input)
+            return fmt.Errorf("Expecting %q, have %q in %q", parent, matches[1], input)
+        },
+        "(ADD|COPY) (.+)": func(matches []string) error {
+          yield(matches[1]+" "+base+matches[2])
+          return nil
         },
         "INCLUDE (.+)": func(matches []string) error {
             yield("# Included from " + matches[1])
@@ -127,7 +131,7 @@ func Transform(input string, base string, yield func(string)) error {
                     return err
                 }
 
-                Transform(filepath.Join(target, "Dockerfile.in"), base, yield)
+                Transform(filepath.Join(target, "Dockerfile.in"), parent, "vendor/"+vendor+"/"+name+"/", yield)
             }
             return nil
         },
@@ -168,7 +172,7 @@ func Transform(input string, base string, yield func(string)) error {
 }
 
 func main() {
-    err := Transform("Dockerfile.in", "", func(line string) { fmt.Println(line) })
+    err := Transform("Dockerfile.in", "", "", func(line string) { fmt.Println(line) })
 
     if err != nil {
         fmt.Println(err)
