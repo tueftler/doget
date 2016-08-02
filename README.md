@@ -1,7 +1,7 @@
 DoGet
 =====
 
-Composes dockerfiles
+Composes dockerfiles from traits like the one [here](https://github.com/thekid/gosu):
 
 ```dockerfile
 FROM debian:jessie
@@ -21,7 +21,8 @@ FROM debian:jessie
 
 ENV GOSU_VERSION 1.9
 RUN set -x \
-    && apt-get update && apt-get install -y ...
+    && apt-get update && apt-get install -y 
+    ...
     && apt-get purge -y --auto-remove ca-certificates wget
 
 CMD ["/bin/bash"]
