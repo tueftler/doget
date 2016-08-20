@@ -2,6 +2,16 @@ DoGet
 =====
 Composes dockerfiles from traits like the one [here](https://github.com/thekid/gosu).
 
+Setup
+-----
+Build the tool as follows:
+
+```sh
+$ go build github.com/tueftler/doget
+```
+
+Usage
+-----
 Start with this in a file called `Dockerfile.in`:
 
 ```dockerfile
@@ -10,12 +20,6 @@ FROM debian:jessie
 INCLUDE github.com/thekid/gosu
 
 CMD ["/bin/bash"]
-```
-
-Build the tool as follows:
-
-```sh
-$ go build github.com/tueftler/doget
 ```
 
 Running the tool will give you this:
@@ -34,6 +38,18 @@ RUN set -x \
     && apt-get update && apt-get install -y 
     ...
     && apt-get purge -y --auto-remove ca-certificates wget
+
+CMD ["/bin/bash"]
+```
+
+Versioning
+----------
+Versions can be added to includes just like tags in docker images:
+
+```dockerfile
+FROM debian:jessie
+
+INCLUDE github.com/thekid/gosu:v1.0.0
 
 CMD ["/bin/bash"]
 ```
