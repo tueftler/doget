@@ -30,19 +30,21 @@ func parse(input string, file *dockerfile.Dockerfile) error {
 	return parser.ParseFile(input, file)
 }
 
+func open(output string) (io.Writer, error) {
+	if output == "-" {
+		return os.Stdout, nil
+	} else {
+		return os.Create(output)
+	}
+}
+
 func main() {
 	flag.Parse()
 
-	var out io.Writer
-	if output == "-" {
-		out = os.Stdout
-	} else {
-		var err error
-		out, err = os.Create(output)
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(2)
-		}
+	out, err := open(output)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(2)
 	}
 
 	command := "transform"
