@@ -53,3 +53,15 @@ INCLUDE github.com/thekid/gosu:v1.0.0
 
 CMD ["/bin/bash"]
 ```
+
+Including subdirectories
+------------------------
+Te following will include the `Dockerfile` from the subdirectory `7.0` rather than from the repository root.
+
+```dockerfile
+FROM debian:jessie
+
+INCLUDE github.com/docker-library/php/7.0
+
+CMD /bin/bash
+```
