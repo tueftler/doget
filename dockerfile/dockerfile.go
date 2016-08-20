@@ -86,7 +86,7 @@ type Arg struct {
 }
 
 type Onbuild struct {
-	Line  			int
+	Line        int
 	Instruction string
 }
 
@@ -180,7 +180,7 @@ type Parser struct {
 }
 
 // Creates a new parser
-func NewParser() (*Parser) {
+func NewParser() *Parser {
 	return &Parser{statements: statements, extended: false}
 }
 
@@ -243,13 +243,13 @@ func (p *Parser) ParseFile(name string, file *Dockerfile) (err error) {
 // 		  return &Include{Line: line, Reference: tokens.NextLine()}
 // 		})
 //
-func (p *Parser) Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) (*Parser) {
+func (p *Parser) Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) *Parser {
 
 	// Copy on write
 	if !p.extended {
 		statements := make(map[string]func(file *Dockerfile, line int, tokens *Tokens) Statement)
 		for instruction, parsing := range statements {
-		  statements[instruction] = parsing
+			statements[instruction] = parsing
 		}
 		p.statements = statements
 		p.extended = true

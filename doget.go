@@ -9,7 +9,7 @@ import (
 
 var (
 	fileName string
-	parser *dockerfile.Parser
+	parser   *dockerfile.Parser
 	commands = map[string]func(file *dockerfile.Dockerfile) error{
 		"run":  run,
 		"dump": dump,

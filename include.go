@@ -10,5 +10,5 @@ type Include struct {
 }
 
 func include(file *dockerfile.Dockerfile, line int, tokens *dockerfile.Tokens) dockerfile.Statement {
-  return &Include{Line: line, Reference: tokens.NextLine()}
+	return &Include{Line: line, Reference: tokens.NextLine()}
 }

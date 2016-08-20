@@ -20,13 +20,14 @@ func assertParsed(expect interface{}, fieldOf func(d Dockerfile) field, input st
 	err := Parse(strings.NewReader(input), &fixture)
 	if err != nil {
 		t.Error("Could not parse " + err.Error())
+		return
 	}
 
 	assertEqual(expect, fieldOf(fixture), t)
 }
 
 func Test_source(t *testing.T) {
-  assertParsed("*strings.Reader", func(d Dockerfile) field { return d.Source }, "", t)
+	assertParsed("*strings.Reader", func(d Dockerfile) field { return d.Source }, "", t)
 }
 
 func Test_parsing(t *testing.T) {
@@ -57,7 +58,7 @@ CMD /bin/bash
 }
 
 func Test_parsing_empty(t *testing.T) {
-  assertParsed(0, func(d Dockerfile) field { return len(d.Statements) }, "", t)
+	assertParsed(0, func(d Dockerfile) field { return len(d.Statements) }, "", t)
 }
 
 func Test_parsing_comment(t *testing.T) {
@@ -149,22 +150,22 @@ func Test_parsing_shell(t *testing.T) {
 }
 
 func Test_extending(t *testing.T) {
-  type Include struct {
-    Line      int
-    Reference string
-  }
+	type Include struct {
+		Line      int
+		Reference string
+	}
 
-  parser := NewParser()
-  parser.Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
-    return &Include{Line: line, Reference: tokens.NextLine()}
-  })
+	parser := NewParser()
+	parser.Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
+		return &Include{Line: line, Reference: tokens.NextLine()}
+	})
 
-  var fixture Dockerfile
+	var fixture Dockerfile
 
-  err := parser.Parse(strings.NewReader("INCLUDE github.com/thekid/gosu"), &fixture)
-  if err != nil {
-    t.Error("Could not parse " + err.Error())
-  }
+	err := parser.Parse(strings.NewReader("INCLUDE github.com/thekid/gosu"), &fixture)
+	if err != nil {
+		t.Error("Could not parse " + err.Error())
+	}
 
-  assertEqual("github.com/thekid/gosu", fixture.Statements[0].(*Include).Reference, t)
+	assertEqual("github.com/thekid/gosu", fixture.Statements[0].(*Include).Reference, t)
 }
