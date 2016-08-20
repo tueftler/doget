@@ -24,7 +24,21 @@ type Origin struct {
 	Version string
 }
 
-func download(uri, file string) (int64, error) {
+type track struct {
+	io.Reader
+	total    int64
+	length   int64
+	progress func(transferred, total int64)
+}
+
+func (t *track) Read(p []byte) (int, error) {
+	n, err := t.Reader.Read(p)
+	t.total += int64(n)
+	t.progress(t.total, t.length)
+	return n, err
+}
+
+func download(uri, file string, progress func(transferred, total int64)) (int64, error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", uri, nil)
@@ -55,14 +69,15 @@ func download(uri, file string) (int64, error) {
 		}
 		defer out.Close()
 
-		size, err := io.Copy(out, resp.Body)
+		size, err := io.Copy(out, &track{resp.Body, 0, resp.ContentLength, progress})
 		if err != nil {
 			return -1, err
 		}
 
 		return size, nil
-	
+
 	case 304:
+		progress(stat.Size(), stat.Size())
 		return stat.Size(), nil
 
 	default:
@@ -81,7 +96,7 @@ func origin(reference string) Origin {
 	}
 }
 
-func fetch(reference string) (string, error) {
+func fetch(reference string, progress func(transferred, total int64)) (string, error) {
 	origin := origin(reference)
 
 	if delegate, ok := repositories[origin.Host]; ok {
@@ -97,7 +112,7 @@ func fetch(reference string) (string, error) {
 			return "", err
 		}
 
-		_, err := download(uri.String(), zip)
+		_, err := download(uri.String(), zip, progress)
 		if err != nil {
 			return "", err
 		}

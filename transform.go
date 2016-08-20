@@ -1,27 +1,44 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
-func comment(value string) {
-	fmt.Printf("# %s\n", strings.Replace(value, "\n", "\n# ", -1))
+func comment(out io.Writer, value string) {
+	fmt.Fprintf(out, "# %s\n", strings.Replace(value, "\n", "\n# ", -1))
 }
 
-func instruction(instruction, value string) {
-	fmt.Printf("%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
+func instruction(out io.Writer, instruction, value string) {
+	fmt.Fprintf(out, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
-func write(file *dockerfile.Dockerfile, base string) error {
+func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *Include:
 			var path string
+			reference := statement.(*Include).Reference
 
-			path, err := fetch(statement.(*Include).Reference);
+			path, err := fetch(reference, func(transferred, total int64) {
+				percentage := float64(transferred) / float64(total)
+				finished := int(percentage * float64(20))
+				fmt.Fprintf(
+					os.Stderr,
+					"\r> Fetching %s: [%s%s] %.2fkB",
+					reference,
+					strings.Repeat("#", finished),
+					strings.Repeat("_", 20-finished),
+					float64(transferred)/float64(1024),
+				)
+			})
+			fmt.Fprintf(os.Stderr, "\n")
+
 			if err != nil {
 				return err
 			}
@@ -34,72 +51,72 @@ func write(file *dockerfile.Dockerfile, base string) error {
 			if included.From.Image != file.From.Image {
 				return fmt.Errorf(
 					"Include %s inherits from %s, which is incompatible with %s",
-					statement.(*Include).Reference,
+					reference,
 					included.From.Image,
 					file.From.Image,
 				)
 			}
 
-			comment("Included from " + statement.(*Include).Reference)
-			write(&included, path + "/")
+			comment(out, "Included from "+reference)
+			write(out, &included, path+"/")
 			break
 
 		// Retain comments
 		case *dockerfile.Comment:
-			comment(statement.(*dockerfile.Comment).Lines)
+			comment(out, statement.(*dockerfile.Comment).Lines)
 			break
 
 		// Builtin Docker instructions
 		case *dockerfile.Maintainer:
-			instruction("MAINTAINER", statement.(*dockerfile.Maintainer).Name)
+			instruction(out, "MAINTAINER", statement.(*dockerfile.Maintainer).Name)
 			break
 		case *dockerfile.Run:
-			instruction("RUN", statement.(*dockerfile.Run).Command)
+			instruction(out, "RUN", statement.(*dockerfile.Run).Command)
 			break
 		case *dockerfile.Label:
-			instruction("LABEL", statement.(*dockerfile.Label).Pairs)
+			instruction(out, "LABEL", statement.(*dockerfile.Label).Pairs)
 			break
 		case *dockerfile.Expose:
-			instruction("EXPOSE", statement.(*dockerfile.Expose).Ports)
+			instruction(out, "EXPOSE", statement.(*dockerfile.Expose).Ports)
 			break
 		case *dockerfile.Env:
-			instruction("ENV", statement.(*dockerfile.Env).Pairs)
+			instruction(out, "ENV", statement.(*dockerfile.Env).Pairs)
 			break
 		case *dockerfile.Add:
-			instruction("ADD", base + statement.(*dockerfile.Add).Paths)
+			instruction(out, "ADD", base+statement.(*dockerfile.Add).Paths)
 			break
 		case *dockerfile.Copy:
-			instruction("COPY", base + statement.(*dockerfile.Copy).Paths)
+			instruction(out, "COPY", base+statement.(*dockerfile.Copy).Paths)
 			break
 		case *dockerfile.Entrypoint:
-			instruction("ENTRYPOINT", statement.(*dockerfile.Entrypoint).CmdLine)
+			instruction(out, "ENTRYPOINT", statement.(*dockerfile.Entrypoint).CmdLine)
 			break
 		case *dockerfile.Volume:
-			instruction("VOLUME", statement.(*dockerfile.Volume).Names)
+			instruction(out, "VOLUME", statement.(*dockerfile.Volume).Names)
 			break
 		case *dockerfile.User:
-			instruction("USER", statement.(*dockerfile.User).Name)
+			instruction(out, "USER", statement.(*dockerfile.User).Name)
 			break
 		case *dockerfile.Workdir:
-			instruction("WORKDIR", statement.(*dockerfile.Workdir).Path)
+			instruction(out, "WORKDIR", statement.(*dockerfile.Workdir).Path)
 			break
 		case *dockerfile.Arg:
-			instruction("ARG", statement.(*dockerfile.Arg).Name)
+			instruction(out, "ARG", statement.(*dockerfile.Arg).Name)
 			break
 		case *dockerfile.Onbuild:
-			instruction("ONBUILD", statement.(*dockerfile.Onbuild).Instruction)
+			instruction(out, "ONBUILD", statement.(*dockerfile.Onbuild).Instruction)
 			break
 		case *dockerfile.Stopsignal:
-			instruction("STOPSIGNAL", statement.(*dockerfile.Stopsignal).Signal)
+			instruction(out, "STOPSIGNAL", statement.(*dockerfile.Stopsignal).Signal)
 			break
 		case *dockerfile.Healthcheck:
-			instruction("HEALTHCHECK", statement.(*dockerfile.Healthcheck).Command)
+			instruction(out, "HEALTHCHECK", statement.(*dockerfile.Healthcheck).Command)
 			break
 		case *dockerfile.Shell:
-			instruction("SHELL", statement.(*dockerfile.Shell).CmdLine)
+			instruction(out, "SHELL", statement.(*dockerfile.Shell).CmdLine)
 			break
 		case *dockerfile.Cmd:
-			instruction("CMD", statement.(*dockerfile.Cmd).CmdLine)
+			instruction(out, "CMD", statement.(*dockerfile.Cmd).CmdLine)
 			break
 		}
 	}
@@ -107,6 +124,14 @@ func write(file *dockerfile.Dockerfile, base string) error {
 }
 
 func transform(file *dockerfile.Dockerfile) error {
-	instruction("FROM", file.From.Image)
-	return write(file, "")
+	var transformed bytes.Buffer
+
+	instruction(&transformed, "FROM", file.From.Image)
+	if err := write(&transformed, file, ""); err != nil {
+		return err
+	}
+
+	fmt.Fprintf(os.Stderr, "Done\n\n")
+	fmt.Print(transformed.String())
+	return nil
 }
