@@ -176,11 +176,12 @@ var (
 
 type Parser struct {
 	statements map[string]func(file *Dockerfile, line int, tokens *Tokens) Statement
+	extended   bool
 }
 
 // Creates a new parser
 func NewParser() (*Parser) {
-	return &Parser{statements: statements}
+	return &Parser{statements: statements, extended: false}
 }
 
 // Parses a dockerfile from a reader. Returns an error if
@@ -243,6 +244,17 @@ func (p *Parser) ParseFile(name string, file *Dockerfile) (err error) {
 // 		})
 //
 func (p *Parser) Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) (*Parser) {
+
+	// Copy on write
+	if !p.extended {
+		statements := make(map[string]func(file *Dockerfile, line int, tokens *Tokens) Statement)
+		for instruction, parsing := range statements {
+		  statements[instruction] = parsing
+		}
+		p.statements = statements
+		p.extended = true
+	}
+
 	p.statements[name] = extension
 	return p
 }
