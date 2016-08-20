@@ -187,8 +187,13 @@ func NewParser() *Parser {
 // Parses a dockerfile from a reader. Returns an error if
 // an unknown token is encountered.
 func (p *Parser) Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
-	tokens := NewTokens(input)
+	if len(source) > 0 {
+		file.Source = source[0]
+	} else {
+		file.Source = fmt.Sprintf("%T", input)
+	}
 
+	tokens := NewTokens(input)
 	for tokens.HasNext {
 		token := tokens.NextToken()
 
@@ -197,14 +202,8 @@ func (p *Parser) Parse(input io.Reader, file *Dockerfile, source ...string) (err
 		} else if statement, ok := p.statements[token]; ok {
 			file.Statements = append(file.Statements, statement(file, tokens.Line, tokens))
 		} else {
-			return fmt.Errorf("Cannot handle token `%s` on line %d", token, tokens.Line)
+			return fmt.Errorf("Cannot handle token `%s` on line %d of %s", token, tokens.Line, file.Source)
 		}
-	}
-
-	if len(source) > 0 {
-		file.Source = source[0]
-	} else {
-		file.Source = fmt.Sprintf("%T", input)
 	}
 
 	return nil
@@ -229,7 +228,7 @@ func (p *Parser) ParseFile(name string, file *Dockerfile) (err error) {
 	}
 
 	defer input.Close()
-	return Parse(bufio.NewReader(input), file, name)
+	return p.Parse(bufio.NewReader(input), file, name)
 }
 
 // Extends parser. Example:
@@ -248,7 +247,7 @@ func (p *Parser) Extend(name string, extension func(file *Dockerfile, line int, 
 	// Copy on write
 	if !p.extended {
 		statements := make(map[string]func(file *Dockerfile, line int, tokens *Tokens) Statement)
-		for instruction, parsing := range statements {
+		for instruction, parsing := range p.statements {
 			statements[instruction] = parsing
 		}
 		p.statements = statements
