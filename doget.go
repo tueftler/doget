@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	input    string
-	output   string
+	input  string
+	output string
 
 	parser   *dockerfile.Parser
 	commands = map[string]func(out io.Writer, file *dockerfile.Dockerfile) error{

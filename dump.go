@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
-  "io"
+	"io"
 )
 
 func dump(out io.Writer, file *dockerfile.Dockerfile) error {
