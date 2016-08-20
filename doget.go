@@ -18,6 +18,8 @@ var (
 
 func init() {
 	flag.StringVar(&fileName, "file", "Dockerfile", "Use given dockerfile")
+
+	dockerfile.Extend("INCLUDE", include)
 }
 
 func run(file *dockerfile.Dockerfile) error {
@@ -42,6 +44,7 @@ func main() {
 	}
 
 	var file dockerfile.Dockerfile
+
 	if err := dockerfile.ParseFile(fileName, &file); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(2)
