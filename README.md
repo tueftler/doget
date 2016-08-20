@@ -14,12 +14,17 @@ CMD ["/bin/bash"]
 Running the tool will give you this:
 
 ```sh
-$ go run doget.go
+$ go build github.com/tueftler/doget
+
+$ doget -file Dockerfile.in
+> Fetching github.com/thekid/gosu: [####################] 0.74kB
+Done
+
 FROM debian:jessie
 
 # Included from github.com/thekid/gosu
-
 ENV GOSU_VERSION 1.9
+
 RUN set -x \
     && apt-get update && apt-get install -y 
     ...
