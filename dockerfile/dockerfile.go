@@ -223,7 +223,17 @@ func ParseFile(name string, file *Dockerfile) (err error) {
 	return Parse(bufio.NewReader(input), file, name)
 }
 
-// Extends parser
+// Extends parser. Example:
+//
+// 		type Include struct {
+// 		  Line      int
+// 		  Reference string
+// 		}
+//
+// 		Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
+// 		  return &Include{Line: line, Reference: tokens.NextLine()}
+// 		})
+//
 func Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) {
 	statements[name] = extension
 }
