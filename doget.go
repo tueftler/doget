@@ -20,14 +20,18 @@ var (
 )
 
 func init() {
-	flag.StringVar(&input, "in", "Dockerfile.in", "Use given dockerfile")
+	flag.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
 	flag.StringVar(&output, "out", "-", "Output. Use - for standard output")
 
 	parser = dockerfile.NewParser().Extend("INCLUDE", include)
 }
 
 func parse(input string, file *dockerfile.Dockerfile) error {
-	return parser.ParseFile(input, file)
+	if input == "-" {
+		return parser.Parse(os.Stdin, file, "<stdin>")
+	} else {
+		return parser.ParseFile(input, file)
+	}
 }
 
 func open(output string) (io.Writer, error) {
