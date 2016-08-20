@@ -11,8 +11,8 @@ var (
 	fileName string
 	parser   *dockerfile.Parser
 	commands = map[string]func(file *dockerfile.Dockerfile) error{
-		"run":  run,
-		"dump": dump,
+		"transform": transform,
+		"dump":      dump,
 	}
 )
 
@@ -22,23 +22,10 @@ func init() {
 	parser = dockerfile.NewParser().Extend("INCLUDE", include)
 }
 
-func run(file *dockerfile.Dockerfile) error {
-	return fmt.Errorf("Command `run` not yet implemented!")
-}
-
-func dump(file *dockerfile.Dockerfile) error {
-	fmt.Println(file.Source, "{")
-	for _, statement := range file.Statements {
-		fmt.Printf("  %T %+v\n", statement, statement)
-	}
-	fmt.Println("}")
-	return nil
-}
-
 func main() {
 	flag.Parse()
 
-	command := "run"
+	command := "transform"
 	if len(flag.Args()) > 0 {
 		command = flag.Args()[0]
 	}
