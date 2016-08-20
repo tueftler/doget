@@ -15,7 +15,7 @@ func instruction(instruction, value string) {
 	fmt.Printf("%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
-func write(file *dockerfile.Dockerfile) error {
+func write(file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *Include:
@@ -31,8 +31,17 @@ func write(file *dockerfile.Dockerfile) error {
 				return err
 			}
 
+			if included.From.Image != file.From.Image {
+				return fmt.Errorf(
+					"Include %s inherits from %s, which is incompatible with %s",
+					statement.(*Include).Reference,
+					included.From.Image,
+					file.From.Image,
+				)
+			}
+
 			comment("Included from " + statement.(*Include).Reference)
-			write(&included)
+			write(&included, path + "/")
 			break
 
 		// Retain comments
@@ -41,8 +50,6 @@ func write(file *dockerfile.Dockerfile) error {
 			break
 
 		// Builtin Docker instructions
-		case *dockerfile.From:
-			break
 		case *dockerfile.Maintainer:
 			instruction("MAINTAINER", statement.(*dockerfile.Maintainer).Name)
 			break
@@ -59,10 +66,10 @@ func write(file *dockerfile.Dockerfile) error {
 			instruction("ENV", statement.(*dockerfile.Env).Pairs)
 			break
 		case *dockerfile.Add:
-			instruction("ADD", statement.(*dockerfile.Add).Paths)
+			instruction("ADD", base + statement.(*dockerfile.Add).Paths)
 			break
 		case *dockerfile.Copy:
-			instruction("COPY", statement.(*dockerfile.Copy).Paths)
+			instruction("COPY", base + statement.(*dockerfile.Copy).Paths)
 			break
 		case *dockerfile.Entrypoint:
 			instruction("ENTRYPOINT", statement.(*dockerfile.Entrypoint).CmdLine)
@@ -101,5 +108,5 @@ func write(file *dockerfile.Dockerfile) error {
 
 func transform(file *dockerfile.Dockerfile) error {
 	instruction("FROM", file.From.Image)
-	return write(file)
+	return write(file, "")
 }
