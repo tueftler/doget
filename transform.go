@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
 	"io"
+	"math"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -27,7 +27,7 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 
 			path, err := fetch(reference, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
-				finished := int(percentage * float64(20))
+				finished := int(math.Max(percentage * float64(20), 20))
 				fmt.Fprintf(
 					os.Stderr,
 					"\r> Fetching %s: [%s%s] %.2fkB",
@@ -44,7 +44,7 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 			}
 
 			var included dockerfile.Dockerfile
-			if err := parse(filepath.Join(path, "Dockerfile.in"), &included); err != nil {
+			if err := parse(path, &included); err != nil {
 				return err
 			}
 

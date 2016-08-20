@@ -22,6 +22,7 @@ type Origin struct {
 	Vendor  string
 	Name    string
 	Version string
+	Dir     string
 }
 
 type track struct {
@@ -88,14 +89,25 @@ func download(uri, file string, progress func(transferred, total int64)) (int64,
 }
 
 func origin(reference string) Origin {
+	var parsed []string
+	var version, dir string
+
 	pos := strings.LastIndex(reference, ":")
 	if pos == -1 {
-		parsed := strings.SplitN(reference, "/", 3)
-		return Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Version: "master"}
+		parsed = strings.Split(reference, "/")
+		version = "master"
 	} else {
-		parsed := strings.SplitN(reference[0:pos], "/", 3)
-		return Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Version: reference[pos+1 : len(reference)]}
+		parsed = strings.Split(reference[0:pos], "/")
+		version = reference[pos+1 : len(reference)]
 	}
+
+	if len(parsed) == 3 {
+		dir = ""
+	} else {
+		dir = strings.Join(parsed[3:len(parsed)], "/")
+	}
+
+	return Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
 }
 
 func fetch(reference string, progress func(transferred, total int64)) (string, error) {
@@ -123,7 +135,7 @@ func fetch(reference string, progress func(transferred, total int64)) (string, e
 			return "", err
 		}
 
-		return target, nil
+		return filepath.Join(target, origin.Dir), nil
 	} else {
 		return "", fmt.Errorf("No repository %s", origin.Host)
 	}
