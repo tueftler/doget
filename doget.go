@@ -9,8 +9,7 @@ import (
 
 var (
 	fileName string
-	parser dockerfile.Parser
-
+	parser *dockerfile.Parser
 	commands = map[string]func(file *dockerfile.Dockerfile) error{
 		"run":  run,
 		"dump": dump,
@@ -20,8 +19,7 @@ var (
 func init() {
 	flag.StringVar(&fileName, "file", "Dockerfile", "Use given dockerfile")
 
-	parser := dockerfile.NewParser()
-	parser.Extend("INCLUDE", include)
+	parser = dockerfile.NewParser().Extend("INCLUDE", include)
 }
 
 func run(file *dockerfile.Dockerfile) error {

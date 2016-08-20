@@ -238,12 +238,13 @@ func (p *Parser) ParseFile(name string, file *Dockerfile) (err error) {
 // 		  Reference string
 // 		}
 //
-// 		Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
+// 		parser.Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
 // 		  return &Include{Line: line, Reference: tokens.NextLine()}
 // 		})
 //
-func (p *Parser) Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) {
-	statements[name] = extension
+func (p *Parser) Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) (*Parser) {
+	p.statements[name] = extension
+	return p
 }
 
 // Convenience shortcut
