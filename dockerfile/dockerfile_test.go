@@ -147,3 +147,15 @@ func Test_parsing_healthcheck(t *testing.T) {
 func Test_parsing_shell(t *testing.T) {
 	assertParsed("[\"powershell\", \"-command\"]", func(d Dockerfile) field { return d.Statements[0].(*Shell).CmdLine }, "SHELL [\"powershell\", \"-command\"]", t)
 }
+
+type Include struct {
+  Line      int
+  Reference string
+}
+
+func Test_extending(t *testing.T) {
+  Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
+    return &Include{Line: line, Reference: tokens.NextLine()}
+  })
+  assertParsed("github.com/thekid/gosu", func(d Dockerfile) field { return d.Statements[0].(*Include).Reference }, "INCLUDE github.com/thekid/gosu", t)
+}

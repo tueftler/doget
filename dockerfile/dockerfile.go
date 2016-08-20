@@ -222,3 +222,8 @@ func ParseFile(name string, file *Dockerfile) (err error) {
 	defer input.Close()
 	return Parse(bufio.NewReader(input), file, name)
 }
+
+// Extends parser
+func Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) {
+	statements[name] = extension
+}
