@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -58,7 +59,7 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 			}
 
 			comment(out, "Included from "+reference)
-			write(out, &included, path+"/")
+			write(out, &included, filepath.ToSlash(path)+"/")
 			break
 
 		// Retain comments
