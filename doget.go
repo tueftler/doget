@@ -3,16 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 	"github.com/tueftler/doget/dockerfile"
+	"os"
 )
 
 var (
 	fileName string
 
-	functions = map[string]func(name string, file *dockerfile.Dockerfile) error {
-		"run"  : run,
-		"dump" : dump,
+	functions = map[string]func(name string, file *dockerfile.Dockerfile) error{
+		"run":  run,
+		"dump": dump,
 	}
 )
 
@@ -42,14 +42,14 @@ func main() {
 
 	var file dockerfile.Dockerfile
 	if err := dockerfile.ParseFile(fileName, &file); err != nil {
-    fmt.Println(err.Error())
-    os.Exit(2)
+		fmt.Println(err.Error())
+		os.Exit(2)
 	}
 
 	if function, ok := functions[command]; ok {
 		if err := function(fileName, &file); err != nil {
-	    fmt.Println(err)
-	    os.Exit(1)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	} else {
 		fmt.Printf("Cannot handle command `%s`\n", command)
