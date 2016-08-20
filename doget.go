@@ -26,6 +26,10 @@ func init() {
 	parser = dockerfile.NewParser().Extend("INCLUDE", include)
 }
 
+func parse(input string, file *dockerfile.Dockerfile) error {
+	return parser.ParseFile(input, file)
+}
+
 func main() {
 	flag.Parse()
 
@@ -47,7 +51,7 @@ func main() {
 	}
 
 	var file dockerfile.Dockerfile
-	if err := parser.ParseFile(input, &file); err != nil {
+	if err := parse(input, &file); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(2)
 	}

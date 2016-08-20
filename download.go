@@ -33,8 +33,10 @@ type track struct {
 
 func (t *track) Read(p []byte) (int, error) {
 	n, err := t.Reader.Read(p)
-	t.total += int64(n)
-	t.progress(t.total, t.length)
+	if n > 0 {
+		t.total += int64(n)
+		t.progress(t.total, t.length)
+	}
 	return n, err
 }
 

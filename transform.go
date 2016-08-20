@@ -44,7 +44,7 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 			}
 
 			var included dockerfile.Dockerfile
-			if err := parser.ParseFile(filepath.Join(path, "Dockerfile.in"), &included); err != nil {
+			if err := parse(filepath.Join(path, "Dockerfile.in"), &included); err != nil {
 				return err
 			}
 
