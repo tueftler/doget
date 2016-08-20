@@ -25,6 +25,10 @@ func assertParsed(expect interface{}, fieldOf func(d Dockerfile) field, input st
 	assertEqual(expect, fieldOf(fixture), t)
 }
 
+func Test_source(t *testing.T) {
+  assertParsed("*strings.Reader", func(d Dockerfile) field { return d.Source }, "", t)
+}
+
 func Test_parsing(t *testing.T) {
 	file := `
 FROM debian:jessie
@@ -50,6 +54,10 @@ CMD /bin/bash
 	`
 
 	assertParsed(4, func(d Dockerfile) field { return len(d.Statements) }, file, t)
+}
+
+func Test_parsing_empty(t *testing.T) {
+  assertParsed(0, func(d Dockerfile) field { return len(d.Statements) }, "", t)
 }
 
 func Test_parsing_comment(t *testing.T) {

@@ -10,6 +10,7 @@ import (
 type Statement interface{}
 
 type Dockerfile struct {
+	Source     string
 	Statements []Statement
 	From       *From
 }
@@ -176,7 +177,7 @@ var (
 // an unknown token is encountered.
 //
 // See https://docs.docker.com/engine/reference/builder/
-func Parse(input io.Reader, file *Dockerfile) (err error) {
+func Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
 	tokens := NewTokens(input)
 
 	for tokens.HasNext {
@@ -189,6 +190,12 @@ func Parse(input io.Reader, file *Dockerfile) (err error) {
 		} else {
 			return fmt.Errorf("Cannot handle token `%s` on line %d", token, tokens.Line)
 		}
+	}
+
+	if len(source) > 0 {
+		file.Source = source[0]
+	} else {
+		file.Source = fmt.Sprintf("%T", input)
 	}
 
 	return nil
@@ -213,6 +220,5 @@ func ParseFile(name string, file *Dockerfile) (err error) {
 	}
 
 	defer input.Close()
-
-	return Parse(bufio.NewReader(input), file)
+	return Parse(bufio.NewReader(input), file, name)
 }

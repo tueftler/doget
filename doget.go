@@ -10,7 +10,7 @@ import (
 var (
 	fileName string
 
-	functions = map[string]func(name string, file *dockerfile.Dockerfile) error{
+	commands = map[string]func(file *dockerfile.Dockerfile) error{
 		"run":  run,
 		"dump": dump,
 	}
@@ -20,12 +20,12 @@ func init() {
 	flag.StringVar(&fileName, "file", "Dockerfile", "Use given dockerfile")
 }
 
-func run(name string, file *dockerfile.Dockerfile) error {
+func run(file *dockerfile.Dockerfile) error {
 	return fmt.Errorf("Command `run` not yet implemented!")
 }
 
-func dump(name string, file *dockerfile.Dockerfile) error {
-	fmt.Println(name)
+func dump(file *dockerfile.Dockerfile) error {
+	fmt.Println(file.Source)
 	for _, statement := range file.Statements {
 		fmt.Println(statement)
 	}
@@ -46,8 +46,8 @@ func main() {
 		os.Exit(2)
 	}
 
-	if function, ok := functions[command]; ok {
-		if err := function(fileName, &file); err != nil {
+	if delegate, ok := commands[command]; ok {
+		if err := delegate(&file); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
