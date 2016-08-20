@@ -42,7 +42,25 @@ func (t *Tokens) NextRune() rune {
 	return r
 }
 
+func (t *Tokens) checkComment() bool {
+	peek, err := t.reader.Peek(2)
+	if err == nil && peek[0] == '#' {
+		if peek[1] == ' ' {
+			t.reader.Discard(2)
+		} else {
+			t.reader.Discard(1)
+		}
+		return true
+	} else {
+		return false
+	}
+}
+
 func (t *Tokens) NextToken() string {
+	if t.checkComment() {
+		return "#"
+	}
+
 	var buf bytes.Buffer
 	for {
 		if r := t.NextRune(); r == eof {
@@ -62,15 +80,9 @@ func (t *Tokens) NextComment() string {
 		if r := t.NextRune(); r == eof {
 			break
 		} else if '\n' == r {
-			peek, err := t.reader.Peek(2)
 
 			// Comment continuation
-			if err == nil && peek[0] == '#' {
-				if peek[1] == ' ' {
-					t.reader.Discard(2)
-				} else {
-					t.reader.Discard(1)
-				}
+			if t.checkComment() {
 				buf.WriteRune(r)
 				continue
 			}

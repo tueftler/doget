@@ -168,6 +168,9 @@ var (
 		"SHELL": func(file *Dockerfile, line int, tokens *Tokens) Statement {
 			return &Shell{Line: line, CmdLine: tokens.NextLine()}
 		},
+		"#": func(file *Dockerfile, line int, tokens *Tokens) Statement {
+			return &Comment{Line: line, Lines: tokens.NextComment()}
+		},
 	}
 )
 
@@ -196,10 +199,6 @@ func (p *Parser) Parse(input io.Reader, file *Dockerfile, source ...string) (err
 
 		if "" == token {
 			continue
-		} else if '#' == token[0] {
-			line := tokens.Line
-			comment := token[1:len(token)] + tokens.NextComment()
-			file.Statements = append(file.Statements, &Comment{Line: line, Lines: comment})
 		} else if statement, ok := p.statements[token]; ok {
 			file.Statements = append(file.Statements, statement(file, tokens.Line, tokens))
 		} else {
