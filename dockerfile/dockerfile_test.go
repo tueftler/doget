@@ -148,12 +148,12 @@ func Test_parsing_shell(t *testing.T) {
 	assertParsed("[\"powershell\", \"-command\"]", func(d Dockerfile) field { return d.Statements[0].(*Shell).CmdLine }, "SHELL [\"powershell\", \"-command\"]", t)
 }
 
-type Include struct {
-  Line      int
-  Reference string
-}
-
 func Test_extending(t *testing.T) {
+  type Include struct {
+    Line      int
+    Reference string
+  }
+
   Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
     return &Include{Line: line, Reference: tokens.NextLine()}
   })
