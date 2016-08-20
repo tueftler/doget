@@ -20,8 +20,8 @@ var (
 )
 
 func init() {
-	flag.StringVar(&input, "in", "Dockerfile", "Use given dockerfile")
-	flag.StringVar(&output, "out", "-", "Output (defaults to standard output)")
+	flag.StringVar(&input, "in", "Dockerfile.in", "Use given dockerfile")
+	flag.StringVar(&output, "out", "-", "Output. Use - for standard output")
 
 	parser = dockerfile.NewParser().Extend("INCLUDE", include)
 }

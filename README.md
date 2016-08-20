@@ -1,7 +1,9 @@
 DoGet
 =====
 
-Composes dockerfiles from traits like the one [here](https://github.com/thekid/gosu):
+Composes dockerfiles from traits like the one [here](https://github.com/thekid/gosu).
+
+Start with this in a file called `Dockerfile.in`:
 
 ```dockerfile
 FROM debian:jessie
@@ -16,7 +18,7 @@ Running the tool will give you this:
 ```sh
 $ go build github.com/tueftler/doget
 
-$ doget -in Dockerfile.in
+$ doget
 > Fetching github.com/thekid/gosu: [####################] 0.74kB
 Done
 
