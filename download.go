@@ -25,24 +25,49 @@ type Origin struct {
 }
 
 func download(uri, file string) (int64, error) {
-	out, err := os.Create(file)
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		return -1, err
 	}
-	defer out.Close()
 
-	resp, err := http.Get(uri)
+	stat, err := os.Stat(file)
+	if err == nil {
+		req.Header.Add("If-Modified-Since", stat.ModTime().UTC().Format(http.TimeFormat))
+	}
+
+	// DEBUG fmt.Printf(">>> %+v\n", req)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return -1, err
 	}
 	defer resp.Body.Close()
 
-	size, err := io.Copy(out, resp.Body)
-	if err != nil {
-		return -1, err
-	}
+	// DEBUG fmt.Printf("<<< %+v\n", resp)
 
-	return size, nil
+	switch resp.StatusCode {
+	case 200:
+		out, err := os.Create(file)
+		if err != nil {
+			return -1, err
+		}
+		defer out.Close()
+
+		size, err := io.Copy(out, resp.Body)
+		if err != nil {
+			return -1, err
+		}
+
+		return size, nil
+	
+	case 304:
+		return stat.Size(), nil
+
+	default:
+		return -1, fmt.Errorf("Could not download %q, response %+v", uri, resp)
+	}
 }
 
 func origin(reference string) Origin {
@@ -72,7 +97,6 @@ func fetch(reference string) (string, error) {
 			return "", err
 		}
 
-		// TODO: If-Modified-Since!
 		_, err := download(uri.String(), zip)
 		if err != nil {
 			return "", err
