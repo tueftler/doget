@@ -1,6 +1,5 @@
 DoGet
 =====
-
 Composes dockerfiles from traits like the one [here](https://github.com/thekid/gosu).
 
 Start with this in a file called `Dockerfile.in`:
@@ -13,11 +12,15 @@ INCLUDE github.com/thekid/gosu
 CMD ["/bin/bash"]
 ```
 
-Running the tool will give you this:
+Build the tool as follows:
 
 ```sh
 $ go build github.com/tueftler/doget
+```
 
+Running the tool will give you this:
+
+```sh
 $ doget
 > Fetching github.com/thekid/gosu: [####################] 0.74kB
 Done
