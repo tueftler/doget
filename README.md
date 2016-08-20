@@ -63,5 +63,7 @@ FROM debian:jessie
 
 INCLUDE github.com/docker-library/php/7.0
 
+RUN docker-php-ext-install bcmath
+
 CMD /bin/bash
 ```
