@@ -123,7 +123,7 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 	return nil
 }
 
-func transform(file *dockerfile.Dockerfile) error {
+func transform(out io.Writer, file *dockerfile.Dockerfile) error {
 	var transformed bytes.Buffer
 
 	instruction(&transformed, "FROM", file.From.Image)
@@ -132,6 +132,6 @@ func transform(file *dockerfile.Dockerfile) error {
 	}
 
 	fmt.Fprintf(os.Stderr, "Done\n\n")
-	fmt.Print(transformed.String())
+	fmt.Fprintf(out, transformed.String())
 	return nil
 }

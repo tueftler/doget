@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
+  "io"
 )
 
-func dump(file *dockerfile.Dockerfile) error {
-	fmt.Println(file.Source, "{")
+func dump(out io.Writer, file *dockerfile.Dockerfile) error {
+	fmt.Fprintln(out, file.Source, "{")
 	for _, statement := range file.Statements {
-		fmt.Printf("  %T %+v\n", statement, statement)
+		fmt.Fprintf(out, "  %T %+v\n", statement, statement)
 	}
-	fmt.Println("}")
+	fmt.Fprintln(out, "}")
 	return nil
 }

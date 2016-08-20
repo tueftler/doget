@@ -16,7 +16,7 @@ Running the tool will give you this:
 ```sh
 $ go build github.com/tueftler/doget
 
-$ doget -file Dockerfile.in
+$ doget -in Dockerfile.in
 > Fetching github.com/thekid/gosu: [####################] 0.74kB
 Done
 
