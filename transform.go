@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
+	"path/filepath"
 	"strings"
 )
 
@@ -14,12 +15,24 @@ func instruction(instruction, value string) {
 	fmt.Printf("%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
-func transform(file *dockerfile.Dockerfile) error {
+func write(file *dockerfile.Dockerfile) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *Include:
+			var path string
+
+			path, err := fetch(statement.(*Include).Reference);
+			if err != nil {
+				return err
+			}
+
+			var included dockerfile.Dockerfile
+			if err := parser.ParseFile(filepath.Join(path, "Dockerfile.in"), &included); err != nil {
+				return err
+			}
+
 			comment("Included from " + statement.(*Include).Reference)
-			return fmt.Errorf("Include not yet implemented")
+			write(&included)
 			break
 
 		// Retain comments
@@ -29,7 +42,6 @@ func transform(file *dockerfile.Dockerfile) error {
 
 		// Builtin Docker instructions
 		case *dockerfile.From:
-			instruction("FROM", statement.(*dockerfile.From).Image)
 			break
 		case *dockerfile.Maintainer:
 			instruction("MAINTAINER", statement.(*dockerfile.Maintainer).Name)
@@ -85,4 +97,9 @@ func transform(file *dockerfile.Dockerfile) error {
 		}
 	}
 	return nil
+}
+
+func transform(file *dockerfile.Dockerfile) error {
+	instruction("FROM", file.From.Image)
+	return write(file)
 }
