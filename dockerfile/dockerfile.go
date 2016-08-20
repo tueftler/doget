@@ -1,8 +1,10 @@
 package dockerfile
 
 import (
+	"bufio"
 	"fmt"
 	"io"
+	"os"
 )
 
 type Statement interface{}
@@ -190,4 +192,27 @@ func Parse(input io.Reader, file *Dockerfile) (err error) {
 	}
 
 	return nil
+}
+
+// Parses a dockerfile from a file. Returns an error if
+// the file cannot be opened, is a directory or when parsing
+// encounters an error
+func ParseFile(name string, file *Dockerfile) (err error) {
+	stat, err := os.Stat(name)
+	if err != nil {
+		return err
+	}
+
+	if stat.IsDir() {
+		return fmt.Errorf("The given file `%s` is a directory\n", name)
+	}
+
+	input, err := os.Open(name)
+	if err != nil {
+		return err
+	}
+
+	defer input.Close()
+
+	return Parse(bufio.NewReader(input), file)
 }
