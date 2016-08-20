@@ -198,7 +198,7 @@ func (p *Parser) Parse(input io.Reader, file *Dockerfile, source ...string) (err
 			continue
 		} else if '#' == token[0] {
 			line := tokens.Line
-			comment := token[1:len(token)]+tokens.NextComment()
+			comment := token[1:len(token)] + tokens.NextComment()
 			file.Statements = append(file.Statements, &Comment{Line: line, Lines: comment})
 		} else if statement, ok := p.statements[token]; ok {
 			file.Statements = append(file.Statements, statement(file, tokens.Line, tokens))

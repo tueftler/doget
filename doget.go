@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
 	"io"
-	"path/filepath"
 	"os"
+	"path/filepath"
 )
 
 var (

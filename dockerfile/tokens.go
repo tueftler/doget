@@ -85,6 +85,8 @@ func (t *Tokens) NextComment() string {
 
 func (t *Tokens) NextLine() string {
 	var buf bytes.Buffer
+
+	continued := false
 	for {
 		if r := t.NextRune(); r == eof {
 			break
@@ -94,6 +96,12 @@ func (t *Tokens) NextLine() string {
 			// Line continuation
 			if '\n' == n {
 				buf.WriteRune(n)
+
+				// Inline comments
+				n = t.NextRune()
+				continued = '#' == n
+				buf.WriteRune(n)
+
 				continue
 			}
 
@@ -103,7 +111,7 @@ func (t *Tokens) NextLine() string {
 				buf.WriteRune(n)
 			}
 			break
-		} else if '\n' == r {
+		} else if '\n' == r && !continued {
 			break
 		} else {
 			buf.WriteRune(r)

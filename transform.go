@@ -27,7 +27,7 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 
 			path, err := fetch(reference, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
-				finished := int(math.Max(percentage * float64(20), 20))
+				finished := int(math.Max(percentage*float64(20), 20))
 				fmt.Fprintf(
 					os.Stderr,
 					"\r> Fetching %s: [%s%s] %.2fkB",
