@@ -110,6 +110,7 @@ type Cmd struct {
 	CmdLine string
 }
 
+// Builtins (v1.12), see https://docs.docker.com/engine/reference/builder/
 var (
 	statements = map[string]func(file *Dockerfile, line int, tokens *Tokens) Statement{
 		"FROM": func(file *Dockerfile, line int, tokens *Tokens) Statement {
@@ -175,8 +176,6 @@ var (
 
 // Parses a dockerfile from a reader. Returns an error if
 // an unknown token is encountered.
-//
-// See https://docs.docker.com/engine/reference/builder/
 func Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
 	tokens := NewTokens(input)
 
