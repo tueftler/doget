@@ -154,8 +154,17 @@ func Test_extending(t *testing.T) {
     Reference string
   }
 
-  Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
+  parser := NewParser()
+  parser.Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
     return &Include{Line: line, Reference: tokens.NextLine()}
   })
-  assertParsed("github.com/thekid/gosu", func(d Dockerfile) field { return d.Statements[0].(*Include).Reference }, "INCLUDE github.com/thekid/gosu", t)
+
+  var fixture Dockerfile
+
+  err := parser.Parse(strings.NewReader("INCLUDE github.com/thekid/gosu"), &fixture)
+  if err != nil {
+    t.Error("Could not parse " + err.Error())
+  }
+
+  assertEqual("github.com/thekid/gosu", fixture.Statements[0].(*Include).Reference, t)
 }

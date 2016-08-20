@@ -174,9 +174,18 @@ var (
 	}
 )
 
+type Parser struct {
+	statements map[string]func(file *Dockerfile, line int, tokens *Tokens) Statement
+}
+
+// Creates a new parser
+func NewParser() (*Parser) {
+	return &Parser{statements: statements}
+}
+
 // Parses a dockerfile from a reader. Returns an error if
 // an unknown token is encountered.
-func Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
+func (p *Parser) Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
 	tokens := NewTokens(input)
 
 	for tokens.HasNext {
@@ -184,7 +193,7 @@ func Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
 
 		if "" == token {
 			continue
-		} else if statement, ok := statements[token]; ok {
+		} else if statement, ok := p.statements[token]; ok {
 			file.Statements = append(file.Statements, statement(file, tokens.Line, tokens))
 		} else {
 			return fmt.Errorf("Cannot handle token `%s` on line %d", token, tokens.Line)
@@ -203,7 +212,7 @@ func Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
 // Parses a dockerfile from a file. Returns an error if
 // the file cannot be opened, is a directory or when parsing
 // encounters an error
-func ParseFile(name string, file *Dockerfile) (err error) {
+func (p *Parser) ParseFile(name string, file *Dockerfile) (err error) {
 	stat, err := os.Stat(name)
 	if err != nil {
 		return err
@@ -233,6 +242,16 @@ func ParseFile(name string, file *Dockerfile) (err error) {
 // 		  return &Include{Line: line, Reference: tokens.NextLine()}
 // 		})
 //
-func Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) {
+func (p *Parser) Extend(name string, extension func(file *Dockerfile, line int, tokens *Tokens) Statement) {
 	statements[name] = extension
+}
+
+// Convenience shortcut
+func Parse(input io.Reader, file *Dockerfile, source ...string) (err error) {
+	return NewParser().Parse(input, file, source...)
+}
+
+// Convenience shortcut
+func ParseFile(name string, file *Dockerfile) (err error) {
+	return NewParser().ParseFile(name, file)
 }
