@@ -16,159 +16,159 @@ type Dockerfile struct {
 }
 
 type Comment struct {
-	Statement
+	Line  int
 	Lines string
 }
 
 type From struct {
-	Statement
+	Line  int
 	Image string
 }
 
 type Maintainer struct {
-	Statement
+	Line int
 	Name string
 }
 
 type Run struct {
-	Statement
+	Line    int
 	Command string
 }
 
 type Label struct {
-	Statement
+	Line  int
 	Pairs string
 }
 
 type Expose struct {
-	Statement
+	Line  int
 	Ports string
 }
 
 type Env struct {
-	Statement
+	Line  int
 	Pairs string
 }
 
 type Add struct {
-	Statement
+	Line  int
 	Paths string
 }
 
 type Copy struct {
-	Statement
+	Line  int
 	Paths string
 }
 
 type Entrypoint struct {
-	Statement
+	Line    int
 	CmdLine string
 }
 
 type Volume struct {
-	Statement
+	Line  int
 	Names string
 }
 
 type User struct {
-	Statement
+	Line int
 	Name string
 }
 
 type Workdir struct {
-	Statement
+	Line int
 	Path string
 }
 
 type Arg struct {
-	Statement
+	Line int
 	Name string
 }
 
 type Onbuild struct {
-	Statement
+	Line  			int
 	Instruction string
 }
 
 type Stopsignal struct {
-	Statement
+	Line   int
 	Signal string
 }
 
 type Healthcheck struct {
-	Statement
+	Line    int
 	Command string
 }
 
 type Shell struct {
-	Statement
+	Line    int
 	CmdLine string
 }
 
 type Cmd struct {
-	Statement
+	Line    int
 	CmdLine string
 }
 
 var (
 	statements = map[string]func(file *Dockerfile, tokens *Tokens) Statement{
 		"FROM": func(file *Dockerfile, tokens *Tokens) Statement {
-			file.From = &From{Image: tokens.NextLine()}
+			file.From = &From{Line: tokens.Line, Image: tokens.NextLine()}
 			return file.From
 		},
 		"MAINTAINER": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Maintainer{Name: tokens.NextLine()}
+			return &Maintainer{Line: tokens.Line, Name: tokens.NextLine()}
 		},
 		"RUN": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Run{Command: tokens.NextLine()}
+			return &Run{Line: tokens.Line, Command: tokens.NextLine()}
 		},
 		"CMD": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Cmd{CmdLine: tokens.NextLine()}
+			return &Cmd{Line: tokens.Line, CmdLine: tokens.NextLine()}
 		},
 		"LABEL": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Label{Pairs: tokens.NextLine()}
+			return &Label{Line: tokens.Line, Pairs: tokens.NextLine()}
 		},
 		"EXPOSE": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Expose{Ports: tokens.NextLine()}
+			return &Expose{Line: tokens.Line, Ports: tokens.NextLine()}
 		},
 		"ENV": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Env{Pairs: tokens.NextLine()}
+			return &Env{Line: tokens.Line, Pairs: tokens.NextLine()}
 		},
 		"ADD": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Add{Paths: tokens.NextLine()}
+			return &Add{Line: tokens.Line, Paths: tokens.NextLine()}
 		},
 		"COPY": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Copy{Paths: tokens.NextLine()}
+			return &Copy{Line: tokens.Line, Paths: tokens.NextLine()}
 		},
 		"ENTRYPOINT": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Entrypoint{CmdLine: tokens.NextLine()}
+			return &Entrypoint{Line: tokens.Line, CmdLine: tokens.NextLine()}
 		},
 		"VOLUME": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Volume{Names: tokens.NextLine()}
+			return &Volume{Line: tokens.Line, Names: tokens.NextLine()}
 		},
 		"USER": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &User{Name: tokens.NextLine()}
+			return &User{Line: tokens.Line, Name: tokens.NextLine()}
 		},
 		"WORKDIR": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Workdir{Path: tokens.NextLine()}
+			return &Workdir{Line: tokens.Line, Path: tokens.NextLine()}
 		},
 		"ARG": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Arg{Name: tokens.NextLine()}
+			return &Arg{Line: tokens.Line, Name: tokens.NextLine()}
 		},
 		"ONBUILD": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Onbuild{Instruction: tokens.NextLine()}
+			return &Onbuild{Line: tokens.Line, Instruction: tokens.NextLine()}
 		},
 		"STOPSIGNAL": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Stopsignal{Signal: tokens.NextLine()}
+			return &Stopsignal{Line: tokens.Line, Signal: tokens.NextLine()}
 		},
 		"HEALTHCHECK": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Healthcheck{Command: tokens.NextLine()}
+			return &Healthcheck{Line: tokens.Line, Command: tokens.NextLine()}
 		},
 		"SHELL": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Shell{CmdLine: tokens.NextLine()}
+			return &Shell{Line: tokens.Line, CmdLine: tokens.NextLine()}
 		},
 		"#": func(file *Dockerfile, tokens *Tokens) Statement {
-			return &Comment{Lines: tokens.NextComment()}
+			return &Comment{Line: tokens.Line, Lines: tokens.NextComment()}
 		},
 	}
 )
