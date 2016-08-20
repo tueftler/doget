@@ -56,7 +56,7 @@ CMD ["/bin/bash"]
 
 Including subdirectories
 ------------------------
-Te following will include the `Dockerfile` from the subdirectory `7.0` rather than from the repository root.
+The following will include the `Dockerfile` from the subdirectory `7.0` rather than from the repository root.
 
 ```dockerfile
 FROM debian:jessie

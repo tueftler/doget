@@ -25,14 +25,14 @@ type Origin struct {
 	Dir     string
 }
 
-type track struct {
+type Track struct {
 	io.Reader
 	total    int64
 	length   int64
 	progress func(transferred, total int64)
 }
 
-func (t *track) Read(p []byte) (int, error) {
+func (t *Track) Read(p []byte) (int, error) {
 	n, err := t.Reader.Read(p)
 	if n > 0 {
 		t.total += int64(n)
@@ -72,7 +72,7 @@ func download(uri, file string, progress func(transferred, total int64)) (int64,
 		}
 		defer out.Close()
 
-		size, err := io.Copy(out, &track{resp.Body, 0, resp.ContentLength, progress})
+		size, err := io.Copy(out, &Track{resp.Body, 0, resp.ContentLength, progress})
 		if err != nil {
 			return -1, err
 		}
