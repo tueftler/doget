@@ -1,5 +1,7 @@
 DoGet
 =====
+[![Build Status on TravisCI](https://secure.travis-ci.org/tueftler/doget.png)](http://travis-ci.org/tueftler/doget)
+
 Composes dockerfiles from traits like the one [here](https://github.com/thekid/gosu).
 
 Setup
