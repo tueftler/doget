@@ -89,7 +89,7 @@ func main() {
 	}
 
 	if delegate, ok := commands[command]; ok {
-		fmt.Fprintf(os.Stderr, "Running %s using %s\n", command, configuration.Source)
+		fmt.Fprintf(os.Stderr, "> Running %s using %s\n", command, configuration.Source)
 
 		if err := delegate(out, configuration, &file); err != nil {
 			fmt.Println(err)

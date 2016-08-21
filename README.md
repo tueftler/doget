@@ -26,6 +26,7 @@ Running the tool will give you this:
 
 ```sh
 $ doget
+> Running transform using doget\.doget.yml
 > Fetching github.com/thekid/gosu: [####################] 0.74kB
 Done
 
