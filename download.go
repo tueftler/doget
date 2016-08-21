@@ -110,12 +110,17 @@ func origin(reference string) Origin {
 	return Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
 }
 
-func fetch(reference string, progress func(transferred, total int64)) (string, error) {
+func fetch(reference string, config *Configuration, progress func(transferred, total int64)) (string, error) {
 	origin := origin(reference)
 
-	if delegate, ok := repositories[origin.Host]; ok {
+	if repository, ok := config.Repositories[origin.Host]; ok {
+		template, err := template.New(origin.Host).Parse(repository["url"])
+		if err != nil {
+			return "", err
+		}
+
 		var uri bytes.Buffer
-		if err := delegate.Execute(&uri, origin); err != nil {
+		if err := template.Execute(&uri, origin); err != nil {
 			return "", err
 		}
 
@@ -126,7 +131,7 @@ func fetch(reference string, progress func(transferred, total int64)) (string, e
 			return "", err
 		}
 
-		_, err := download(uri.String(), zip, progress)
+		_, err = download(uri.String(), zip, progress)
 		if err != nil {
 			return "", err
 		}

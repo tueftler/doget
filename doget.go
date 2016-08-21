@@ -12,10 +12,11 @@ import (
 var (
 	input  string
 	output string
+	config string
 
 	parser   *dockerfile.Parser
 	variants = []string{"Dockerfile.in", "Dockerfile"}
-	commands = map[string]func(out io.Writer, file *dockerfile.Dockerfile) error{
+	commands = map[string]func(out io.Writer, config *Configuration, file *dockerfile.Dockerfile) error{
 		"transform": transform,
 		"dump":      dump,
 	}
@@ -24,6 +25,7 @@ var (
 func init() {
 	flag.StringVar(&input, "in", ".", "Input. Use - for standard input")
 	flag.StringVar(&output, "out", "-", "Output. Use - for standard output")
+	flag.StringVar(&config, "config", "", "Configuration file to use")
 
 	parser = dockerfile.NewParser().Extend("INCLUDE", include)
 }
@@ -63,6 +65,12 @@ func open(output string) (io.Writer, error) {
 func main() {
 	flag.Parse()
 
+	configuration, err := configuration(config)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
 	out, err := open(output)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -81,7 +89,9 @@ func main() {
 	}
 
 	if delegate, ok := commands[command]; ok {
-		if err := delegate(out, &file); err != nil {
+		fmt.Fprintf(os.Stderr, "Running %s using %s\n", command, configuration.Source)
+
+		if err := delegate(out, configuration, &file); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

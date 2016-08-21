@@ -19,14 +19,14 @@ func instruction(out io.Writer, instruction, value string) {
 	fmt.Fprintf(out, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
-func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
+func write(out io.Writer, config *Configuration, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *Include:
 			var path string
 			reference := statement.(*Include).Reference
 
-			path, err := fetch(reference, func(transferred, total int64) {
+			path, err := fetch(reference, config, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
 				finished := int(math.Max(percentage*float64(20), 20))
 				fmt.Fprintf(
@@ -59,7 +59,7 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 			}
 
 			comment(out, "Included from "+reference)
-			write(out, &included, filepath.ToSlash(path)+"/")
+			write(out, config, &included, filepath.ToSlash(path)+"/")
 			break
 
 		// Retain comments
@@ -124,11 +124,11 @@ func write(out io.Writer, file *dockerfile.Dockerfile, base string) error {
 	return nil
 }
 
-func transform(out io.Writer, file *dockerfile.Dockerfile) error {
+func transform(out io.Writer, config *Configuration, file *dockerfile.Dockerfile) error {
 	var transformed bytes.Buffer
 
 	instruction(&transformed, "FROM", file.From.Image)
-	if err := write(&transformed, file, ""); err != nil {
+	if err := write(&transformed, config, file, ""); err != nil {
 		return err
 	}
 
