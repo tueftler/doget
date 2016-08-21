@@ -11,15 +11,19 @@ import (
 	"strings"
 )
 
-func comment(out io.Writer, value string) {
-	fmt.Fprintf(out, "# %s\n", strings.Replace(value, "\n", "\n# ", -1))
+type Transformation struct {
+	Output io.Writer
 }
 
-func instruction(out io.Writer, instruction, value string) {
-	fmt.Fprintf(out, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
+func (t *Transformation) Comment(value string) {
+	fmt.Fprintf(t.Output, "# %s\n", strings.Replace(value, "\n", "\n# ", -1))
 }
 
-func write(out io.Writer, config *Configuration, file *dockerfile.Dockerfile, base string) error {
+func (t *Transformation) Instruction(instruction, value string) {
+	fmt.Fprintf(t.Output, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
+}
+
+func (t *Transformation) Write(config *Configuration, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *Include:
@@ -58,81 +62,83 @@ func write(out io.Writer, config *Configuration, file *dockerfile.Dockerfile, ba
 				)
 			}
 
-			comment(out, "Included from "+reference)
-			write(out, config, &included, filepath.ToSlash(path)+"/")
+			t.Comment("Included from " + reference)
+			t.Write(config, &included, filepath.ToSlash(path)+"/")
 			break
 
 		// Retain comments
 		case *dockerfile.Comment:
-			comment(out, statement.(*dockerfile.Comment).Lines)
+			t.Comment(statement.(*dockerfile.Comment).Lines)
 			break
 
 		// Builtin Docker instructions
 		case *dockerfile.Maintainer:
-			instruction(out, "MAINTAINER", statement.(*dockerfile.Maintainer).Name)
+			t.Instruction("MAINTAINER", statement.(*dockerfile.Maintainer).Name)
 			break
 		case *dockerfile.Run:
-			instruction(out, "RUN", statement.(*dockerfile.Run).Command)
+			t.Instruction("RUN", statement.(*dockerfile.Run).Command)
 			break
 		case *dockerfile.Label:
-			instruction(out, "LABEL", statement.(*dockerfile.Label).Pairs)
+			t.Instruction("LABEL", statement.(*dockerfile.Label).Pairs)
 			break
 		case *dockerfile.Expose:
-			instruction(out, "EXPOSE", statement.(*dockerfile.Expose).Ports)
+			t.Instruction("EXPOSE", statement.(*dockerfile.Expose).Ports)
 			break
 		case *dockerfile.Env:
-			instruction(out, "ENV", statement.(*dockerfile.Env).Pairs)
+			t.Instruction("ENV", statement.(*dockerfile.Env).Pairs)
 			break
 		case *dockerfile.Add:
-			instruction(out, "ADD", base+statement.(*dockerfile.Add).Paths)
+			t.Instruction("ADD", base+statement.(*dockerfile.Add).Paths)
 			break
 		case *dockerfile.Copy:
-			instruction(out, "COPY", base+statement.(*dockerfile.Copy).Paths)
+			t.Instruction("COPY", base+statement.(*dockerfile.Copy).Paths)
 			break
 		case *dockerfile.Entrypoint:
-			instruction(out, "ENTRYPOINT", statement.(*dockerfile.Entrypoint).CmdLine)
+			t.Instruction("ENTRYPOINT", statement.(*dockerfile.Entrypoint).CmdLine)
 			break
 		case *dockerfile.Volume:
-			instruction(out, "VOLUME", statement.(*dockerfile.Volume).Names)
+			t.Instruction("VOLUME", statement.(*dockerfile.Volume).Names)
 			break
 		case *dockerfile.User:
-			instruction(out, "USER", statement.(*dockerfile.User).Name)
+			t.Instruction("USER", statement.(*dockerfile.User).Name)
 			break
 		case *dockerfile.Workdir:
-			instruction(out, "WORKDIR", statement.(*dockerfile.Workdir).Path)
+			t.Instruction("WORKDIR", statement.(*dockerfile.Workdir).Path)
 			break
 		case *dockerfile.Arg:
-			instruction(out, "ARG", statement.(*dockerfile.Arg).Name)
+			t.Instruction("ARG", statement.(*dockerfile.Arg).Name)
 			break
 		case *dockerfile.Onbuild:
-			instruction(out, "ONBUILD", statement.(*dockerfile.Onbuild).Instruction)
+			t.Instruction("ONBUILD", statement.(*dockerfile.Onbuild).Instruction)
 			break
 		case *dockerfile.Stopsignal:
-			instruction(out, "STOPSIGNAL", statement.(*dockerfile.Stopsignal).Signal)
+			t.Instruction("STOPSIGNAL", statement.(*dockerfile.Stopsignal).Signal)
 			break
 		case *dockerfile.Healthcheck:
-			instruction(out, "HEALTHCHECK", statement.(*dockerfile.Healthcheck).Command)
+			t.Instruction("HEALTHCHECK", statement.(*dockerfile.Healthcheck).Command)
 			break
 		case *dockerfile.Shell:
-			instruction(out, "SHELL", statement.(*dockerfile.Shell).CmdLine)
+			t.Instruction("SHELL", statement.(*dockerfile.Shell).CmdLine)
 			break
 		case *dockerfile.Cmd:
-			instruction(out, "CMD", statement.(*dockerfile.Cmd).CmdLine)
+			t.Instruction("CMD", statement.(*dockerfile.Cmd).CmdLine)
 			break
 		}
 	}
+
 	return nil
 }
 
 func transform(out io.Writer, config *Configuration, file *dockerfile.Dockerfile) error {
-	var transformed bytes.Buffer
+	var buf bytes.Buffer
+	transformation := Transformation{Output: &buf}
 
-	instruction(&transformed, "FROM", file.From.Image)
-	if err := write(&transformed, config, file, ""); err != nil {
+	transformation.Instruction("FROM", file.From.Image)
+	if err := transformation.Write(config, file, ""); err != nil {
 		return err
 	}
 
 	fmt.Fprintf(os.Stderr, "Done\n\n")
-	fmt.Fprintf(out, transformed.String())
+	fmt.Fprintf(out, buf.String())
 	return nil
 }
