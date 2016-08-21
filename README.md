@@ -7,6 +7,7 @@ Setup
 Build the tool as follows:
 
 ```sh
+$ go get gopkg.in/yaml.v2
 $ go build github.com/tueftler/doget
 ```
 
