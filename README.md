@@ -30,7 +30,11 @@ $ doget
 > Running transform using doget\.doget.yml
 > Fetching github.com/thekid/gosu: [####################] 0.74kB
 Done
+```
 
+The resulting `Dockerfile` will now have the trait's contents in place of the *INCLUDE* instruction.
+
+```dockerfile
 FROM debian:jessie
 
 # Included from github.com/thekid/gosu
