@@ -59,6 +59,18 @@ func Test_single_file_source(t *testing.T) {
 	assertEqual(file.Name(), config.Source, t)
 }
 
+func Test_single_file_source_func(t *testing.T) {
+	file, err := configFile("repositories:")
+	if err != nil {
+		t.Errorf("Cannot create config file: %s", err.Error())
+		return
+	}
+	defer os.Remove(file.Name())
+
+	config, _ := From(func() string { return file.Name() })
+	assertEqual(file.Name(), config.Source, t)
+}
+
 func Test_multiple_file_sources(t *testing.T) {
 	global, err := configFile("repositories:")
 	if err != nil {

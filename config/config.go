@@ -23,7 +23,7 @@ var (
 
 // Default configuration loaded from search path
 func Default() (result *Configuration, err error) {
-	return From(SearchPath()...)
+	return From(search)
 }
 
 // Returns search path
@@ -36,10 +36,18 @@ func SearchPath() []string {
 }
 
 // Read configuration from given sources
-func From(sources ...string) (result *Configuration, err error) {
+func From(sources ...interface{}) (result *Configuration, err error) {
 	result = &Configuration{Source: "", Repositories: make(map[string]map[string]string)}
 
-	for _, file := range sources {
+	for _, source := range sources {
+		var file string
+
+		if closure, ok := source.(func() string); ok {
+			file = closure()
+		} else {
+			file = source.(string)
+		}
+
 		_, err = os.Stat(file)
 		if err != nil {
 			continue
