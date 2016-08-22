@@ -2,16 +2,29 @@ package main
 
 import (
 	"fmt"
+	"flag"
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
-	"io"
 )
 
-func dump(out io.Writer, config *config.Configuration, file *dockerfile.Dockerfile) error {
-	fmt.Fprintln(out, file.Source, "{")
-	for _, statement := range file.Statements {
-		fmt.Fprintf(out, "  %T %+v\n", statement, statement)
+func dump(config *config.Configuration, args []string) error {
+	var input string
+
+	flags := flag.NewFlagSet("transform", flag.ExitOnError)
+	flags.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
+ 	flags.Parse(args)
+
+ 	// Parse input
+	var file dockerfile.Dockerfile
+	if err := parse(input, &file); err != nil {
+		return err
 	}
-	fmt.Fprintln(out, "}")
+
+	// Dump
+	fmt.Println(file.Source, "{")
+	for _, statement := range file.Statements {
+		fmt.Printf("  %T %+v\n", statement, statement)
+	}
+	fmt.Println("}")
 	return nil
 }

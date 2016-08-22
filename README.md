@@ -28,7 +28,7 @@ CMD ["/bin/bash"]
 Running the tool will give you this:
 
 ```sh
-$ doget
+$ doget transform
 > Running transform using doget\.doget.yml
 > Fetching github.com/thekid/gosu: [####################] 0.74kB
 Done
