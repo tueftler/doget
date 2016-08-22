@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
 	"io"
 	"os"
@@ -10,13 +11,13 @@ import (
 )
 
 var (
-	input  string
-	output string
-	config string
+	input      string
+	output     string
+	configFile string
 
 	parser   *dockerfile.Parser
 	variants = []string{"Dockerfile.in", "Dockerfile"}
-	commands = map[string]func(out io.Writer, config *Configuration, file *dockerfile.Dockerfile) error{
+	commands = map[string]func(out io.Writer, config *config.Configuration, file *dockerfile.Dockerfile) error{
 		"transform": transform,
 		"dump":      dump,
 	}
@@ -25,7 +26,7 @@ var (
 func init() {
 	flag.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
 	flag.StringVar(&output, "out", "Dockerfile", "Output. Use - for standard output")
-	flag.StringVar(&config, "config", "", "Configuration file to use")
+	flag.StringVar(&configFile, "config", "", "Configuration file to use")
 
 	parser = dockerfile.NewParser().Extend("USE", use)
 }
@@ -65,7 +66,13 @@ func open(output string) (io.Writer, error) {
 func main() {
 	flag.Parse()
 
-	configuration, err := configuration(config)
+	var configuration *config.Configuration
+	var err error
+	if configFile == "" {
+		configuration, err = config.Default()
+	} else {
+		configuration, err = config.FromFile(configFile)
+	}
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

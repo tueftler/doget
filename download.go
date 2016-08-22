@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/tueftler/doget/config"
 	"io"
 	"net/http"
 	"os"
@@ -110,7 +111,7 @@ func origin(reference string) Origin {
 	return Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
 }
 
-func fetch(reference string, config *Configuration, progress func(transferred, total int64)) (string, error) {
+func fetch(reference string, config *config.Configuration, progress func(transferred, total int64)) (string, error) {
 	origin := origin(reference)
 
 	if repository, ok := config.Repositories[origin.Host]; ok {

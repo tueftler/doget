@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
 	"io"
 	"math"
@@ -23,7 +24,7 @@ func (t *Transformation) Instruction(instruction, value string) {
 	fmt.Fprintf(t.Output, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
-func (t *Transformation) Write(config *Configuration, file *dockerfile.Dockerfile, base string) error {
+func (t *Transformation) Write(config *config.Configuration, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *Use:
@@ -129,7 +130,7 @@ func (t *Transformation) Write(config *Configuration, file *dockerfile.Dockerfil
 	return nil
 }
 
-func transform(out io.Writer, config *Configuration, file *dockerfile.Dockerfile) error {
+func transform(out io.Writer, config *config.Configuration, file *dockerfile.Dockerfile) error {
 	var buf bytes.Buffer
 	transformation := Transformation{Output: &buf}
 
