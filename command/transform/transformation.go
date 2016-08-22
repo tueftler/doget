@@ -1,9 +1,8 @@
-package main
+package transform
 
 import (
-	"bytes"
-	"flag"
 	"fmt"
+	"github.com/tueftler/doget/use"
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
 	"io"
@@ -25,12 +24,12 @@ func (t *Transformation) Instruction(instruction, value string) {
 	fmt.Fprintf(t.Output, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
-func (t *Transformation) Write(config *config.Configuration, file *dockerfile.Dockerfile, base string) error {
+func (t *Transformation) Write(config *config.Configuration, parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
-		case *Use:
+		case *use.Statement:
 			var path string
-			reference := statement.(*Use).Reference
+			reference := statement.(*use.Statement).Reference
 
 			path, err := fetch(reference, config, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
@@ -51,7 +50,7 @@ func (t *Transformation) Write(config *config.Configuration, file *dockerfile.Do
 			}
 
 			var included dockerfile.Dockerfile
-			if err := parse(path, &included); err != nil {
+			if err := parse(parser, path, &included); err != nil {
 				return err
 			}
 
@@ -65,7 +64,7 @@ func (t *Transformation) Write(config *config.Configuration, file *dockerfile.Do
 			}
 
 			t.Comment("Included from " + reference)
-			t.Write(config, &included, filepath.ToSlash(path)+"/")
+			t.Write(config, parser, &included, filepath.ToSlash(path)+"/")
 			break
 
 		// Retain comments
@@ -128,49 +127,5 @@ func (t *Transformation) Write(config *config.Configuration, file *dockerfile.Do
 		}
 	}
 
-	return nil
-}
-
-func open(output string) (io.Writer, error) {
-	if output == "-" {
-		return os.Stdout, nil
-	} else {
-		return os.Create(output)
-	}
-}
-
-func transform(config *config.Configuration, args []string) error {
-	var input, output string
-
-	flags := flag.NewFlagSet("transform", flag.ExitOnError)
-	flags.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
-	flags.StringVar(&output, "out", "Dockerfile", "Output. Use - for standard output")
-	flags.Parse(args)
-
-	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q) using %s\n", input, output, config.Source)
-
-	// Parse input
-	var file dockerfile.Dockerfile
-	if err := parse(input, &file); err != nil {
-		return err
-	}
-
-	// Open output
-	out, err := open(output)
-	if err != nil {
-		return err
-	}
-
-	// Transform
-	var buf bytes.Buffer
-	transformation := Transformation{Output: &buf}
-	transformation.Instruction("FROM", file.From.Image)
-	if err := transformation.Write(config, &file, ""); err != nil {
-		return err
-	}
-	fmt.Fprintf(os.Stderr, "Done\n\n")
-
-	// Result
-	fmt.Fprintf(out, buf.String())
 	return nil
 }

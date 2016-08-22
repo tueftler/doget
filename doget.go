@@ -3,10 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/tueftler/doget/command"
+	"github.com/tueftler/doget/command/dump"
+	"github.com/tueftler/doget/command/transform"
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
+	"github.com/tueftler/doget/use"
 	"os"
-	"path/filepath"
 )
 
 var (
@@ -14,47 +17,24 @@ var (
 
 	parser   *dockerfile.Parser
 	variants = []string{"Dockerfile.in", "Dockerfile"}
-	commands = map[string]func(config *config.Configuration, args []string) error{
-		"transform": transform,
-		"dump":      dump,
+	commands = map[string]command.Command{
+		"dump":      dump.NewCommand("dump"),
+		"transform": transform.NewCommand("transform"),
 	}
 )
 
 func init() {
 	flag.StringVar(&configFile, "config", "", "Configuration file to use")
 
-	parser = dockerfile.NewParser().Extend("USE", use)
-}
-
-func parse(input string, file *dockerfile.Dockerfile) error {
-	if input == "-" {
-		return parser.Parse(os.Stdin, file, "<stdin>")
-	} else {
-		stat, err := os.Stat(input)
-		if err != nil {
-			return err
-		}
-
-		if stat.IsDir() {
-			for _, name := range variants {
-				variant := filepath.Join(input, name)
-				_, err := os.Stat(variant)
-				if err == nil {
-					return parser.ParseFile(variant, file)
-				}
-			}
-			return fmt.Errorf("Neither Dockerfile.in or Dockerfile exist in %s", input)
-		} else {
-			return parser.ParseFile(input, file)
-		}
-	}
+	parser = dockerfile.NewParser().Extend("USE", use.Extension)
 }
 
 func main() {
 	flag.Parse()
 
-	var configuration *config.Configuration
+	// Configfiles
 	var err error
+	var configuration *config.Configuration
 	if configFile == "" {
 		configuration, err = config.Default()
 	} else {
@@ -74,7 +54,7 @@ func main() {
 	}
 
 	if delegate, ok := commands[command]; ok {
-		if err := delegate(configuration, args); err != nil {
+		if err := delegate.Run(configuration, parser, args); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

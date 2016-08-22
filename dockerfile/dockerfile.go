@@ -213,6 +213,10 @@ func (p *Parser) Parse(input io.Reader, file *Dockerfile, source ...string) (err
 // the file cannot be opened, is a directory or when parsing
 // encounters an error
 func (p *Parser) ParseFile(name string, file *Dockerfile) (err error) {
+	if name == "-" {
+		return Parse(os.Stdin, file, "<stdin>")
+	}
+
 	stat, err := os.Stat(name)
 	if err != nil {
 		return err

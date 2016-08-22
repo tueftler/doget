@@ -1,4 +1,4 @@
-package main
+package transform
 
 import (
 	"bytes"
@@ -10,12 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-)
-
-var (
-	repositories = map[string]*template.Template{
-		"github.com": template.Must(template.New("github.com").Parse("https://github.com/{{.Vendor}}/{{.Name}}/archive/{{.Version}}.zip")),
-	}
 )
 
 type Origin struct {
