@@ -27,23 +27,23 @@ func NewCommand(name string) *TransformCommand {
 }
 
 func parse(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile) error {
-  stat, err := os.Stat(input)
-  if err != nil {
-    return err
-  }
+	stat, err := os.Stat(input)
+	if err != nil {
+		return err
+	}
 
-  if stat.IsDir() {
-    for _, name := range variants {
-      variant := filepath.Join(input, name)
-      _, err := os.Stat(variant)
-      if err == nil {
-        return parser.ParseFile(variant, file)
-      }
-    }
-    return fmt.Errorf("Neither Dockerfile.in or Dockerfile exist in %s", input)
-  } else {
-    return parser.ParseFile(input, file)
-  }
+	if stat.IsDir() {
+		for _, name := range variants {
+			variant := filepath.Join(input, name)
+			_, err := os.Stat(variant)
+			if err == nil {
+				return parser.ParseFile(variant, file)
+			}
+		}
+		return fmt.Errorf("Neither Dockerfile.in or Dockerfile exist in %s", input)
+	} else {
+		return parser.ParseFile(input, file)
+	}
 }
 
 func open(output string) (io.Writer, error) {

@@ -2,9 +2,9 @@ package transform
 
 import (
 	"fmt"
-	"github.com/tueftler/doget/use"
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
+	"github.com/tueftler/doget/use"
 	"io"
 	"math"
 	"os"

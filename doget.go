@@ -15,8 +15,7 @@ import (
 var (
 	configFile string
 
-	parser   *dockerfile.Parser
-	variants = []string{"Dockerfile.in", "Dockerfile"}
+	parser   = dockerfile.NewParser().Extend("USE", use.Extension)
 	commands = map[string]command.Command{
 		"dump":      dump.NewCommand("dump"),
 		"transform": transform.NewCommand("transform"),
@@ -25,8 +24,6 @@ var (
 
 func init() {
 	flag.StringVar(&configFile, "config", "", "Configuration file to use")
-
-	parser = dockerfile.NewParser().Extend("USE", use.Extension)
 }
 
 func main() {
