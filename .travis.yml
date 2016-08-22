@@ -1,7 +1,20 @@
 language: go
 
+services:
+- docker
+
 go:
 - 1.6
 
 install:
 - go get gopkg.in/yaml.v2
+
+script:
+- go test -v ./...
+- go build -o build/doget github.com/tueftler/doget
+- cp .doget.yml build
+- docker build -t tueftler/doget build
+
+after_success:
+- docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+- docker push tueftler/doget
