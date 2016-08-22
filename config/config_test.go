@@ -31,6 +31,11 @@ func configFile(content string) (*os.File, error) {
 	return file, nil
 }
 
+func Test_search_path(t *testing.T) {
+	path := SearchPath()
+	assertEqual(3, len(path), t)
+}
+
 func Test_can_parse_empty_file(t *testing.T) {
 	file, err := configFile("")
 	if err != nil {
@@ -39,7 +44,7 @@ func Test_can_parse_empty_file(t *testing.T) {
 	}
 	defer os.Remove(file.Name())
 
-	From(func() string { return file.Name() })
+	From(file.Name())
 }
 
 func Test_single_file_source(t *testing.T) {
@@ -50,7 +55,7 @@ func Test_single_file_source(t *testing.T) {
 	}
 	defer os.Remove(file.Name())
 
-	config, _ := From(func() string { return file.Name() })
+	config, _ := From(file.Name())
 	assertEqual(file.Name(), config.Source, t)
 }
 
@@ -69,7 +74,7 @@ func Test_multiple_file_sources(t *testing.T) {
 	}
 	defer os.Remove(user.Name())
 
-	config, _ := From(func() string { return global.Name() }, func() string { return user.Name() })
+	config, _ := From(global.Name(), user.Name())
 	assertEqual(global.Name()+";"+user.Name(), config.Source, t)
 }
 
@@ -85,7 +90,12 @@ repositories:
 	}
 	defer os.Remove(file.Name())
 
-	config, _ := From(func() string { return file.Name() })
+	config, err := From(file.Name())
+	if err != nil {
+		t.Errorf("Cannot parse config file: %s", err.Error())
+		return
+	}
+
 	assertEqual("https://github.com/...", config.Repositories["github.com"]["url"], t)
 }
 
@@ -112,7 +122,7 @@ repositories:
 	}
 	defer os.Remove(user.Name())
 
-	config, _ := From(func() string { return global.Name() }, func() string { return user.Name() })
+	config, _ := From(global.Name(), user.Name())
 	assertEqual("https://github.com/...", config.Repositories["github.com"]["url"], t)
 	assertEqual("https://example.com/...", config.Repositories["example.com"]["url"], t)
 }
@@ -140,6 +150,6 @@ repositories:
 	}
 	defer os.Remove(user.Name())
 
-	config, _ := From(func() string { return global.Name() }, func() string { return user.Name() })
+	config, _ := From(global.Name(), user.Name())
 	assertEqual("https://github.example.com/...", config.Repositories["github.com"]["url"], t)
 }
