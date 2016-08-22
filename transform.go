@@ -144,18 +144,18 @@ func transform(config *config.Configuration, args []string) error {
 
 	flags := flag.NewFlagSet("transform", flag.ExitOnError)
 	flags.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
- 	flags.StringVar(&output, "out", "Dockerfile", "Output. Use - for standard output")
- 	flags.Parse(args)
+	flags.StringVar(&output, "out", "Dockerfile", "Output. Use - for standard output")
+	flags.Parse(args)
 
 	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q) using %s\n", input, output, config.Source)
 
- 	// Parse input
+	// Parse input
 	var file dockerfile.Dockerfile
 	if err := parse(input, &file); err != nil {
 		return err
 	}
 
- 	// Open output
+	// Open output
 	out, err := open(output)
 	if err != nil {
 		return err

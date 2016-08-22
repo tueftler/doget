@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
 )
@@ -12,9 +12,9 @@ func dump(config *config.Configuration, args []string) error {
 
 	flags := flag.NewFlagSet("transform", flag.ExitOnError)
 	flags.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
- 	flags.Parse(args)
+	flags.Parse(args)
 
- 	// Parse input
+	// Parse input
 	var file dockerfile.Dockerfile
 	if err := parse(input, &file); err != nil {
 		return err
