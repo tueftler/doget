@@ -4,11 +4,11 @@ import (
 	"github.com/tueftler/doget/dockerfile"
 )
 
-type Include struct {
+type Use struct {
 	Line      int
 	Reference string
 }
 
-func include(file *dockerfile.Dockerfile, line int, tokens *dockerfile.Tokens) dockerfile.Statement {
-	return &Include{Line: line, Reference: tokens.NextLine()}
+func use(file *dockerfile.Dockerfile, line int, tokens *dockerfile.Tokens) dockerfile.Statement {
+	return &Use{Line: line, Reference: tokens.NextLine()}
 }

@@ -20,7 +20,7 @@ Start with this in a file called `Dockerfile.in`:
 ```dockerfile
 FROM debian:jessie
 
-INCLUDE github.com/thekid/gosu
+USE github.com/thekid/gosu
 
 CMD ["/bin/bash"]
 ```
@@ -34,7 +34,7 @@ $ doget
 Done
 ```
 
-The resulting `Dockerfile` will now have the trait's contents in place of the *INCLUDE* instruction.
+The resulting `Dockerfile` will now have the trait's contents in place of the *USE* instruction.
 
 ```dockerfile
 FROM debian:jessie
@@ -57,7 +57,7 @@ Versions can be added to includes just like tags in docker images:
 ```dockerfile
 FROM debian:jessie
 
-INCLUDE github.com/thekid/gosu:v1.0.0
+USE github.com/thekid/gosu:v1.0.0
 
 CMD ["/bin/bash"]
 ```
@@ -69,9 +69,9 @@ The following will include the `Dockerfile` from the subdirectory `7.0` rather t
 ```dockerfile
 FROM debian:jessie
 
-INCLUDE github.com/docker-library/php/7.0
+USE github.com/docker-library/php/7.0
 
 RUN docker-php-ext-install bcmath
 
-CMD /bin/bash
+CMD ["/bin/bash"]
 ```

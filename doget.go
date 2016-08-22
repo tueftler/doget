@@ -27,7 +27,7 @@ func init() {
 	flag.StringVar(&output, "out", "Dockerfile", "Output. Use - for standard output")
 	flag.StringVar(&config, "config", "", "Configuration file to use")
 
-	parser = dockerfile.NewParser().Extend("INCLUDE", include)
+	parser = dockerfile.NewParser().Extend("USE", use)
 }
 
 func parse(input string, file *dockerfile.Dockerfile) error {
