@@ -26,9 +26,9 @@ func (t *Transformation) Instruction(instruction, value string) {
 func (t *Transformation) Write(config *Configuration, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
-		case *Include:
+		case *Use:
 			var path string
-			reference := statement.(*Include).Reference
+			reference := statement.(*Use).Reference
 
 			path, err := fetch(reference, config, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
