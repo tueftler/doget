@@ -1,3 +1,5 @@
 repositories:
   github.com:
     url: https://github.com/{{.Vendor}}/{{.Name}}/archive/{{.Version}}.zip
+  bitbucket.org:
+    url: https://bitbucket.org/{{.Vendor}}/{{.Name}}/get/{{.Version}}.zip
