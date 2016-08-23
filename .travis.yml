@@ -18,7 +18,7 @@ script:
 after_success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 - docker push tueftler/doget
-- if [ ! -z ${TRAVIS_TAG-} ]; then
+- series=${TRAVIS_TAG-} ; if [ ${series:1:1} -ge 1 ]; then
     tag=${TRAVIS_TAG:1:3};
     docker tag tueftler/doget:$tag tueftler/doget:latest;
     docker push tueftler/doget:$tag;
