@@ -45,8 +45,8 @@ func main() {
 	// Run subcommand
 	args := flag.Args()
 	command := "transform"
-	if len(flag.Args()) > 0 {
-		command = flag.Args()[0]
+	if len(args) > 0 {
+		command = args[0]
 		args = args[1:len(args)]
 	}
 
