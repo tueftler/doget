@@ -14,6 +14,7 @@ import (
 
 var (
 	configFile string
+	cmdName    string
 
 	parser   = dockerfile.NewParser().Extend("USE", use.Extension)
 	commands = map[string]command.Command{
@@ -23,6 +24,7 @@ var (
 )
 
 func init() {
+	flag.StringVar(&cmdName, "#1", "", "Command, one of [dump, transform]")
 	flag.StringVar(&configFile, "config", "", "Configuration file to use")
 }
 
@@ -43,20 +45,16 @@ func main() {
 	}
 
 	// Run subcommand
-	args := flag.Args()
-	command := "transform"
-	if len(args) > 0 {
-		command = args[0]
-		args = args[1:len(args)]
-	}
-
-	if delegate, ok := commands[command]; ok {
-		if err := delegate.Run(configuration, parser, args); err != nil {
+	cmdName = flag.Arg(0)
+	if delegate, ok := commands[cmdName]; ok {
+		args := flag.Args()
+		if err := delegate.Run(configuration, parser, args[1:len(args)]); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	} else {
-		fmt.Printf("Cannot handle command `%s`\n", command)
+		fmt.Printf("Cannot handle command %q\n", cmdName)
+		flag.Usage()
 		os.Exit(2)
 	}
 }
