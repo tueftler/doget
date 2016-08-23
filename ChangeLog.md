@@ -3,6 +3,8 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+## 0.3.0 / 2014-08-23
+
 * Fixed issue #2: Added support for bitbucket.org downloads
   (@thekid)
 * Fixed issue #4: Panic "invalid memory address or nil pointer dereference"
