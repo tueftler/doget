@@ -18,6 +18,18 @@ type Transformation struct {
 }
 
 func parse(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile) error {
+	if err := parser.ParseFile(input, file); err != nil {
+		return err
+	}
+
+	if file.From == nil {
+		return fmt.Errorf("File %q has no `FROM` instruction", input)
+	}
+
+	return nil
+}
+
+func load(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile) error {
 	stat, err := os.Stat(input)
 	if err != nil {
 		return err
@@ -28,19 +40,19 @@ func parse(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile)
 			variant := filepath.Join(input, name)
 			_, err := os.Stat(variant)
 			if err == nil {
-				return parser.ParseFile(variant, file)
+				return parse(parser, variant, file)
 			}
 		}
 		return fmt.Errorf("Neither Dockerfile.in or Dockerfile exist in %s", input)
 	} else {
-		return parser.ParseFile(input, file)
+		return parse(parser, input, file)
 	}
 }
 
 // Run transformation
 func (t *Transformation) Run(config *config.Configuration, parser *dockerfile.Parser) error {
 	var file dockerfile.Dockerfile
-	if err := parse(parser, t.Input, &file); err != nil {
+	if err := load(parser, t.Input, &file); err != nil {
 		return err
 	}
 
@@ -82,7 +94,7 @@ func (t *Transformation) write(config *config.Configuration, parser *dockerfile.
 			}
 
 			var included dockerfile.Dockerfile
-			if err := parse(parser, path, &included); err != nil {
+			if err := load(parser, path, &included); err != nil {
 				return err
 			}
 
