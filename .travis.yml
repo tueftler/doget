@@ -12,14 +12,7 @@ install:
 script:
 - go test -v ./...
 - go build -o build/doget github.com/tueftler/doget
-- cp .doget.yml build
 - docker build -t tueftler/doget build
 
 after_success:
-- docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-- docker push tueftler/doget
-- series=${TRAVIS_TAG-} ; if [ ${series:1:1} -ge 1 ]; then
-    tag=${TRAVIS_TAG:1:3};
-    docker tag tueftler/doget:$tag tueftler/doget:latest;
-    docker push tueftler/doget:$tag;
-  fi
+- sh push.sh $TRAVIS_BRANCH $TRAVIS_TAG
