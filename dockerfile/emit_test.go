@@ -20,3 +20,19 @@ func assertEmitted(expect string, statement Statement, t *testing.T) {
 func Test_emitting_from(t *testing.T) {
 	assertEmitted("FROM debian:jessie\n\n", &From{Line: 1, Image: "debian:jessie"}, t)
 }
+
+func Test_emitting_comment(t *testing.T) {
+	assertEmitted("# Test\n", &Comment{Line: 1, Lines: "Test"}, t)
+}
+
+func Test_emitting_multiline_comment(t *testing.T) {
+	assertEmitted("# One\n# Two\n# Three\n", &Comment{Line: 1, Lines: "One\nTwo\nThree"}, t)
+}
+
+func Test_emitting_run(t *testing.T) {
+	assertEmitted("RUN apt-get update\n\n", &Run{Line: 1, Command: "apt-get update"}, t)
+}
+
+func Test_emitting_multiline_run(t *testing.T) {
+	assertEmitted("RUN apt-get -y install\\\n  doget\n\n", &Run{Line: 1, Command: "apt-get -y install\n  doget"}, t)
+}
