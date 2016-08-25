@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Configuration holds the map of all repository informations parsed from all config files
 type Configuration struct {
 	Source       string
 	Repositories map[string]map[string]string `yaml:"repositories"`
@@ -28,7 +29,7 @@ func Default() (result *Configuration, err error) {
 	return From(SearchPath()...)
 }
 
-// Returns search path
+// SearchPath Returns search path
 func SearchPath() []string {
 	result := make([]string, len(search))
 	for i, path := range search {
@@ -38,7 +39,7 @@ func SearchPath() []string {
 	return result
 }
 
-// Read configuration from given sources
+// From Reads configuration from given sources
 func From(sources ...string) (result *Configuration, err error) {
 	result = &Configuration{Source: "", Repositories: make(map[string]map[string]string)}
 
@@ -76,7 +77,7 @@ func From(sources ...string) (result *Configuration, err error) {
 	return result, nil
 }
 
-// Read configuration from a given file
+// FromFile Reads configuration from a given file
 func FromFile(filename string) (result *Configuration, err error) {
 	result = &Configuration{Source: "", Repositories: make(map[string]map[string]string)}
 
