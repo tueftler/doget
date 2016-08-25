@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/tueftler/doget/command"
-	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
 )
 
@@ -19,7 +18,7 @@ func NewCommand(name string) *DumpCommand {
 }
 
 // Runs dump command
-func (c *DumpCommand) Run(config *config.Configuration, parser *dockerfile.Parser, args []string) error {
+func (c *DumpCommand) Run(parser *dockerfile.Parser, args []string) error {
 	c.flags.String("#1", "", "Input. Use - for standard input")
 	c.flags.Parse(args)
 
