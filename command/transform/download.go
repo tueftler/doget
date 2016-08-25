@@ -86,8 +86,7 @@ func fetch(use *use.Statement, progress func(transferred, total int64)) (string,
 		return "", err
 	}
 
-	_, err = download(origin.Uri, zip, progress)
-	if err != nil {
+	if _, err := download(origin.Uri, zip, progress); err != nil {
 		return "", err
 	}
 

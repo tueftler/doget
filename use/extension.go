@@ -62,7 +62,7 @@ func (s *Statement) Origin() (origin *Origin, err error) {
 	}
 
 	// Compile URL
-	if repository, ok := s.Context.Repositories[origin.Host]; ok {
+	if repository, ok := s.Context.Repositories[parsed[0]]; ok {
 		origin = &Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
 
 		template, err := template.New(origin.Host).Parse(repository["url"])
