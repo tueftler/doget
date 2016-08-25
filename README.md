@@ -29,7 +29,7 @@ Running the tool will give you this:
 
 ```sh
 $ doget transform
-> Running transform using doget\.doget.yml
+> Running transform("Dockerfile.in" -> "Dockerfile")
 > Fetching github.com/thekid/gosu: [####################] 0.74kB
 Done
 ```
