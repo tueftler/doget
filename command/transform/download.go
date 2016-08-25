@@ -108,7 +108,7 @@ func origin(reference string) Origin {
 func fetch(use *use.Statement, progress func(transferred, total int64)) (string, error) {
 	origin := origin(use.Reference)
 
-	if repository, ok := use.Ext.Repositories[origin.Host]; ok {
+	if repository, ok := use.Context.Repositories[origin.Host]; ok {
 		template, err := template.New(origin.Host).Parse(repository["url"])
 		if err != nil {
 			return "", err

@@ -163,7 +163,7 @@ type Include struct {
 	Reference string
 }
 
-func (i *Include) Emit(io.Writer) { }
+func (i *Include) Emit(io.Writer) {}
 
 func Test_extending(t *testing.T) {
 
