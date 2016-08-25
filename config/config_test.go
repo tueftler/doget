@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -36,9 +37,9 @@ func Test_search_path(t *testing.T) {
 	assertEqual(4, len(path), t)
 }
 
-func Test_parse_nonexisting_file_does_not_return_error(t *testing.T) {
-	_, err := From("doesNotExist")
-	assertEqual(nil, err, t)
+func Test_parse_only_nonexisting_files_does_return_error(t *testing.T) {
+	_, err := From("doesNotExist", "doesNotExist2")
+	assertEqual(fmt.Errorf("None of the given config files exist: [\"doesNotExist\" \"doesNotExist2\"]"), err, t)
 }
 
 func Test_parse_nonexisting_and_existing_file(t *testing.T) {

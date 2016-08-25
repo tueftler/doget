@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -71,6 +72,10 @@ func From(sources ...string) (result *Configuration, err error) {
 		for host, config := range parsedFile.Repositories {
 			result.Repositories[host] = config
 		}
+	}
+
+	if "" == result.Source {
+		return nil, fmt.Errorf("None of the given config files exist: %q", sources)
 	}
 
 	result.Source = strings.TrimLeft(result.Source, ";")
