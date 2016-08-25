@@ -2,7 +2,7 @@ FROM debian:jessie
 
 MAINTAINER Tueftler Group 
 
-COPY ./doget ./.doget.yml /usr/bin/
+COPY ./doget /usr/bin/
 
 VOLUME ["/app"]
 
