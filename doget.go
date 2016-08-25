@@ -49,7 +49,7 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		fmt.Printf("Cannot handle command %q\n", cmdName)
+		fmt.Printf("Cannot handle command %q\n", *cmdName)
 		flag.Usage()
 		os.Exit(2)
 	}
