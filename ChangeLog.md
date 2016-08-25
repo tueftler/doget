@@ -6,6 +6,7 @@ DoGet change log
 * Merged PR #6: Make default configuration builtin instead of shipping it as 
   a file. Implementes feature request #5
   (@thekid)
+* Changed `config.Merge()` to only parse given files once - @mikey179 
 
 ## 0.3.0 / 2014-08-23
 
