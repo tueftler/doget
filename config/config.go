@@ -30,7 +30,7 @@ func Empty() *Configuration {
 	return &Configuration{Source: "", Repositories: make(map[string]map[string]string)}
 }
 
-// Default configuration loaded from search path
+// Default configuration supports github.com and bitbucket.org
 func Default() *Configuration {
 	return &Configuration{Source: "<default>", Repositories: map[string]map[string]string{
 		"github.com": map[string]string{
