@@ -47,8 +47,13 @@ func Test_default_source(t *testing.T) {
 	assertEqual("<default>", config.Source, t)
 }
 
-func Test_parse_only_nonexisting_files_does_return_error(t *testing.T) {
+func Test_merge_only_nonexisting_files_works(t *testing.T) {
 	_, err := Empty().Merge("doesNotExist", "doesNotExist2")
+	assertEqual(nil, err, t)
+}
+
+func Test_must_merge_only_nonexisting_files_yields_error(t *testing.T) {
+	_, err := Empty().MustMerge("doesNotExist", "doesNotExist2")
 	assertEqual(fmt.Errorf("None of the given config files exist: [\"doesNotExist\" \"doesNotExist2\"]"), err, t)
 }
 
