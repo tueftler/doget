@@ -1,7 +1,6 @@
 package transform
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/tueftler/doget/use"
 	"io"
@@ -9,16 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 )
-
-type Origin struct {
-	Host    string
-	Vendor  string
-	Name    string
-	Version string
-	Dir     string
-}
 
 type Track struct {
 	io.Reader
@@ -83,60 +73,27 @@ func download(uri, file string, progress func(transferred, total int64)) (int64,
 	}
 }
 
-func origin(reference string) Origin {
-	var parsed []string
-	var version, dir string
-
-	pos := strings.LastIndex(reference, ":")
-	if pos == -1 {
-		parsed = strings.Split(reference, "/")
-		version = "master"
-	} else {
-		parsed = strings.Split(reference[0:pos], "/")
-		version = reference[pos+1 : len(reference)]
-	}
-
-	if len(parsed) == 3 {
-		dir = ""
-	} else {
-		dir = strings.Join(parsed[3:len(parsed)], "/")
-	}
-
-	return Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
-}
-
 func fetch(use *use.Statement, progress func(transferred, total int64)) (string, error) {
-	origin := origin(use.Reference)
-
-	if repository, ok := use.Context.Repositories[origin.Host]; ok {
-		template, err := template.New(origin.Host).Parse(repository["url"])
-		if err != nil {
-			return "", err
-		}
-
-		var uri bytes.Buffer
-		if err := template.Execute(&uri, origin); err != nil {
-			return "", err
-		}
-
-		target := filepath.Join("vendor", origin.Host, origin.Vendor, origin.Name)
-		zip := filepath.Join(target, origin.Version+".zip")
-
-		if err := os.MkdirAll(target, 0755); err != nil {
-			return "", err
-		}
-
-		_, err = download(uri.String(), zip, progress)
-		if err != nil {
-			return "", err
-		}
-
-		if err := unzip(zip, target, strings.NewReplacer(origin.Name+"-"+origin.Version+"/", "")); err != nil {
-			return "", err
-		}
-
-		return filepath.Join(target, origin.Dir), nil
-	} else {
-		return "", fmt.Errorf("No repository %s", origin.Host)
+	origin, err := use.Origin()
+	if err != nil {
+		return "", err
 	}
+
+	target := filepath.Join("vendor", origin.Host, origin.Vendor, origin.Name)
+	zip := filepath.Join(target, origin.Version+".zip")
+
+	if err := os.MkdirAll(target, 0755); err != nil {
+		return "", err
+	}
+
+	_, err = download(origin.Uri, zip, progress)
+	if err != nil {
+		return "", err
+	}
+
+	if err := unzip(zip, target, strings.NewReplacer(origin.Name+"-"+origin.Version+"/", "")); err != nil {
+		return "", err
+	}
+
+	return filepath.Join(target, origin.Dir), nil
 }
