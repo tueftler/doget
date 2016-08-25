@@ -45,6 +45,11 @@ func From(sources ...string) (result *Configuration, err error) {
 	parsed := make(map[string]bool)
 
 	for _, file := range sources {
+		_, err = os.Stat(file)
+		if err != nil {
+			continue
+		}
+
 		info, err := filepath.Abs(file)
 		if err != nil {
 			continue

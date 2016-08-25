@@ -36,6 +36,27 @@ func Test_search_path(t *testing.T) {
 	assertEqual(4, len(path), t)
 }
 
+func Test_parse_nonexisting_file_does_not_return_error(t *testing.T) {
+	_, err := From("doesNotExist")
+	assertEqual(nil, err, t)
+}
+
+func Test_parse_nonexisting_and_existing_file(t *testing.T) {
+	file, err := configFile("repositories:")
+	if err != nil {
+		t.Errorf("Cannot create config file: %s", err.Error())
+		return
+	}
+	defer os.Remove(file.Name())
+
+	config, err := From("doesNotExist", file.Name())
+	if nil != err {
+		t.Errorf("Expected no error, got %v", err)
+	} else {
+		assertEqual(file.Name(), config.Source, t)
+	}
+}
+
 func Test_can_parse_empty_file(t *testing.T) {
 	file, err := configFile("")
 	if err != nil {
