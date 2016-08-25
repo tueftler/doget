@@ -55,16 +55,8 @@ func (t *Transformation) Run(parser *dockerfile.Parser) error {
 		return err
 	}
 
-	t.instruction("FROM", file.From.Image)
+	file.From.Emit(t.Output)
 	return t.write(parser, &file, "")
-}
-
-func (t *Transformation) comment(value string) {
-	fmt.Fprintf(t.Output, "# %s\n", strings.Replace(value, "\n", "\n# ", -1))
-}
-
-func (t *Transformation) instruction(instruction, value string) {
-	fmt.Fprintf(t.Output, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
 func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string) error {
@@ -106,7 +98,7 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 				)
 			}
 
-			t.comment("Included from " + reference)
+			dockerfile.WriteComment(t.Output, "Included from "+reference)
 			t.write(parser, &included, filepath.ToSlash(path)+"/")
 			break
 
