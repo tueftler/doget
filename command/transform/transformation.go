@@ -74,7 +74,7 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 			var path string
 			reference := statement.(*use.Statement).Reference
 
-			path, err := fetch(reference, statement.(*use.Statement).Ext.Repositories, func(transferred, total int64) {
+			path, err := fetch(statement.(*use.Statement), func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
 				finished := int(math.Max(percentage*float64(20), 20))
 				fmt.Fprintf(
