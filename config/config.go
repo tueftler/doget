@@ -54,12 +54,12 @@ func SearchPath() []string {
 
 // Merge Reads configuration from given sources
 func (c *Configuration) Merge(sources ...string) (*Configuration, error) {
-  return c.merge(false, sources...)
+	return c.merge(false, sources...)
 }
 
 // MustMerge Reads configuration from given sources and yields an error if none exist
 func (c *Configuration) MustMerge(sources ...string) (*Configuration, error) {
-  return c.merge(true, sources...)
+	return c.merge(true, sources...)
 }
 
 func (c *Configuration) merge(must bool, sources ...string) (*Configuration, error) {

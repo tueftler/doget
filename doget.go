@@ -13,20 +13,12 @@ import (
 )
 
 var (
-	configFile string
-	cmdName    string
-
 	parser   = dockerfile.NewParser().Extend("USE", use.Extension)
 	commands = map[string]command.Command{
 		"dump":      dump.NewCommand("dump"),
 		"transform": transform.NewCommand("transform"),
 	}
 )
-
-func init() {
-	flag.StringVar(&cmdName, "#1", "", "Command, one of [dump, transform]")
-	flag.StringVar(&configFile, "config", "", "Configuration file to use")
-}
 
 func configuration(file string) (*config.Configuration, error) {
 	if file == "" {
@@ -37,16 +29,20 @@ func configuration(file string) (*config.Configuration, error) {
 }
 
 func main() {
+	var (
+		cmdName    = flag.String("#1", "", "Command, one of [dump, transform]")
+		configFile = flag.String("config", "", "Configuration file to use")
+	)
 	flag.Parse()
 
-	configuration, err := configuration(configFile)
+	configuration, err := configuration(*configFile)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	cmdName = flag.Arg(0)
-	if delegate, ok := commands[cmdName]; ok {
+	*cmdName = flag.Arg(0)
+	if delegate, ok := commands[*cmdName]; ok {
 		args := flag.Args()
 		if err := delegate.Run(configuration, parser, args[1:len(args)]); err != nil {
 			fmt.Println(err)
