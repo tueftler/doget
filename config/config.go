@@ -69,17 +69,17 @@ func (c *Configuration) merge(must bool, sources ...string) (*Configuration, err
 			continue
 		}
 
-		info, err := filepath.Abs(file)
+		path, err := filepath.Abs(file)
 		if err != nil {
 			continue
 		}
 
-		if _, ok := parsed[info]; ok {
+		if _, ok := parsed[path]; ok {
 			continue
 		}
 
-		parsed[info] = true
-		parsedFile, err := FromFile(file)
+		parsed[path] = true
+		parsedFile, err := FromFile(path)
 		if err != nil {
 			return nil, err
 		}
