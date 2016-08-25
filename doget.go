@@ -28,23 +28,23 @@ func init() {
 	flag.StringVar(&configFile, "config", "", "Configuration file to use")
 }
 
+func configuration(file string) (*config.Configuration, error) {
+	if file == "" {
+		return config.Default().Merge(config.SearchPath()...)
+	} else {
+		return config.Empty().Merge(file)
+	}
+}
+
 func main() {
 	flag.Parse()
 
-	// Configfiles
-	var err error
-	var configuration *config.Configuration
-	if configFile == "" {
-		configuration, err = config.Default()
-	} else {
-		configuration, err = config.FromFile(configFile)
-	}
+	configuration, err := configuration(configFile)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	// Run subcommand
 	cmdName = flag.Arg(0)
 	if delegate, ok := commands[cmdName]; ok {
 		args := flag.Args()
