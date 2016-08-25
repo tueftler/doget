@@ -2,7 +2,6 @@ package transform
 
 import (
 	"fmt"
-	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
 	"github.com/tueftler/doget/use"
 	"io"
@@ -50,14 +49,14 @@ func load(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile) 
 }
 
 // Run transformation
-func (t *Transformation) Run(config *config.Configuration, parser *dockerfile.Parser) error {
+func (t *Transformation) Run(parser *dockerfile.Parser) error {
 	var file dockerfile.Dockerfile
 	if err := load(parser, t.Input, &file); err != nil {
 		return err
 	}
 
 	t.instruction("FROM", file.From.Image)
-	return t.write(config, parser, &file, "")
+	return t.write(parser, &file, "")
 }
 
 func (t *Transformation) comment(value string) {
@@ -68,14 +67,14 @@ func (t *Transformation) instruction(instruction, value string) {
 	fmt.Fprintf(t.Output, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
-func (t *Transformation) write(config *config.Configuration, parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string) error {
+func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *use.Statement:
 			var path string
 			reference := statement.(*use.Statement).Reference
 
-			path, err := fetch(reference, config, func(transferred, total int64) {
+			path, err := fetch(statement.(*use.Statement), func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
 				finished := int(math.Max(percentage*float64(20), 20))
 				fmt.Fprintf(
@@ -108,7 +107,7 @@ func (t *Transformation) write(config *config.Configuration, parser *dockerfile.
 			}
 
 			t.comment("Included from " + reference)
-			t.write(config, parser, &included, filepath.ToSlash(path)+"/")
+			t.write(parser, &included, filepath.ToSlash(path)+"/")
 			break
 
 		// Retain comments

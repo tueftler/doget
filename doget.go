@@ -13,7 +13,6 @@ import (
 )
 
 var (
-	parser   = dockerfile.NewParser().Extend("USE", use.Extension)
 	commands = map[string]command.Command{
 		"dump":      dump.NewCommand("dump"),
 		"transform": transform.NewCommand("transform"),
@@ -43,8 +42,10 @@ func main() {
 
 	*cmdName = flag.Arg(0)
 	if delegate, ok := commands[*cmdName]; ok {
+		parser := dockerfile.NewParser().Extend("USE", use.New(configuration.Repositories).Extension)
+
 		args := flag.Args()
-		if err := delegate.Run(configuration, parser, args[1:len(args)]); err != nil {
+		if err := delegate.Run(parser, args[1:len(args)]); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

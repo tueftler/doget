@@ -3,7 +3,7 @@ package transform
 import (
 	"bytes"
 	"fmt"
-	"github.com/tueftler/doget/config"
+	"github.com/tueftler/doget/use"
 	"io"
 	"net/http"
 	"os"
@@ -105,10 +105,10 @@ func origin(reference string) Origin {
 	return Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
 }
 
-func fetch(reference string, config *config.Configuration, progress func(transferred, total int64)) (string, error) {
-	origin := origin(reference)
+func fetch(use *use.Statement, progress func(transferred, total int64)) (string, error) {
+	origin := origin(use.Reference)
 
-	if repository, ok := config.Repositories[origin.Host]; ok {
+	if repository, ok := use.Ext.Repositories[origin.Host]; ok {
 		template, err := template.New(origin.Host).Parse(repository["url"])
 		if err != nil {
 			return "", err
