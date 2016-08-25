@@ -35,7 +35,7 @@ func load(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile) 
 	}
 
 	if stat.IsDir() {
-		for _, name := range variants {
+		for _, name := range []string{"Dockerfile.in", "Dockerfile"} {
 			variant := filepath.Join(input, name)
 			_, err := os.Stat(variant)
 			if err == nil {
