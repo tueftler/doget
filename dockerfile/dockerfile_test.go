@@ -1,6 +1,7 @@
 package dockerfile
 
 import (
+	"io"
 	"reflect"
 	"strings"
 	"testing"
@@ -157,23 +158,26 @@ func Test_parsing_shell(t *testing.T) {
 	assertParsed("[\"powershell\", \"-command\"]", func(d Dockerfile) field { return d.Statements[0].(*Shell).CmdLine }, "SHELL [\"powershell\", \"-command\"]", t)
 }
 
-// func Test_extending(t *testing.T) {
-// 	type Include struct {
-// 		Line      int
-// 		Reference string
-// 	}
+type Include struct {
+	Line      int
+	Reference string
+}
 
-// 	parser := NewParser()
-// 	parser.Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
-// 		return &Include{Line: line, Reference: tokens.NextLine()}
-// 	})
+func (i *Include) Emit(io.Writer) { }
 
-// 	var fixture Dockerfile
+func Test_extending(t *testing.T) {
 
-// 	err := parser.Parse(strings.NewReader("INCLUDE github.com/thekid/gosu"), &fixture)
-// 	if err != nil {
-// 		t.Error("Could not parse " + err.Error())
-// 	}
+	parser := NewParser()
+	parser.Extend("INCLUDE", func(file *Dockerfile, line int, tokens *Tokens) Statement {
+		return &Include{Line: line, Reference: tokens.NextLine()}
+	})
 
-// 	assertEqual("github.com/thekid/gosu", fixture.Statements[0].(*Include).Reference, t)
-// }
+	var fixture Dockerfile
+
+	err := parser.Parse(strings.NewReader("INCLUDE github.com/thekid/gosu"), &fixture)
+	if err != nil {
+		t.Error("Could not parse " + err.Error())
+	}
+
+	assertEqual("github.com/thekid/gosu", fixture.Statements[0].(*Include).Reference, t)
+}
