@@ -3,6 +3,8 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+## 0.4.0 / 2014-08-25
+
 * Merged PR #6: Make default configuration builtin instead of shipping it as 
   a file. Implementes feature request #5
   (@thekid)
