@@ -3,6 +3,10 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #6: Make default configuration builtin instead of shipping it as 
+  a file. Implementes feature request #5
+  (@thekid)
+
 ## 0.3.0 / 2014-08-23
 
 * Fixed issue #2: Added support for bitbucket.org downloads
