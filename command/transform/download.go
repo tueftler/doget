@@ -122,7 +122,7 @@ func fetch(reference string, config *config.Configuration, progress func(transfe
 		target := filepath.Join("vendor", origin.Host, origin.Vendor, origin.Name)
 		zip := filepath.Join(target, origin.Version+".zip")
 
-		if err := os.MkdirAll(target, 0700); err != nil {
+		if err := os.MkdirAll(target, 0755); err != nil {
 			return "", err
 		}
 
