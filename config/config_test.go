@@ -33,7 +33,7 @@ func configFile(content string) (*os.File, error) {
 
 func Test_search_path(t *testing.T) {
 	path := SearchPath()
-	assertEqual(3, len(path), t)
+	assertEqual(4, len(path), t)
 }
 
 func Test_can_parse_empty_file(t *testing.T) {
@@ -76,6 +76,18 @@ func Test_multiple_file_sources(t *testing.T) {
 
 	config, _ := From(global.Name(), user.Name())
 	assertEqual(global.Name()+";"+user.Name(), config.Source, t)
+}
+
+func Test_same_file_sources_multiple_times(t *testing.T) {
+	global, err := configFile("repositories:")
+	if err != nil {
+		t.Errorf("Cannot create config file: %s", err.Error())
+		return
+	}
+	defer os.Remove(global.Name())
+
+	config, _ := From(global.Name(), global.Name())
+	assertEqual(global.Name(), config.Source, t)
 }
 
 func Test_single_file_repositories(t *testing.T) {

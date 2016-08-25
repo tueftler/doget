@@ -1,11 +1,12 @@
 package config
 
 import (
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Configuration struct {
@@ -15,6 +16,7 @@ type Configuration struct {
 
 var (
 	search = []func() string{
+		func() string { return ".doget.yml" },
 		func() string { return filepath.Join(filepath.Dir(os.Args[0]), ".doget.yml") },
 		func() string { return filepath.Join(os.Getenv("HOME"), ".doget.yml") },
 		func() string { return filepath.Join(os.Getenv("APPDATA"), "Doget", "config.yml") },
@@ -32,6 +34,7 @@ func SearchPath() []string {
 	for i, path := range search {
 		result[i] = path()
 	}
+
 	return result
 }
 
@@ -39,20 +42,27 @@ func SearchPath() []string {
 func From(sources ...string) (result *Configuration, err error) {
 	result = &Configuration{Source: "", Repositories: make(map[string]map[string]string)}
 
+	parsed := make(map[string]bool)
+
 	for _, file := range sources {
-		_, err = os.Stat(file)
+		info, err := filepath.Abs(file)
 		if err != nil {
 			continue
 		}
 
-		parsed, err := FromFile(file)
+		if _, ok := parsed[info]; ok {
+			continue
+		}
+
+		parsed[info] = true
+		parsedFile, err := FromFile(file)
 		if err != nil {
 			return nil, err
 		}
 
 		// Merge
-		result.Source += ";" + parsed.Source
-		for host, config := range parsed.Repositories {
+		result.Source += ";" + parsedFile.Source
+		for host, config := range parsedFile.Repositories {
 			result.Repositories[host] = config
 		}
 	}
