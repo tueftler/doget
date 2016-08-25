@@ -6,88 +6,107 @@ import (
 	"strings"
 )
 
-// Comment writes a comment
-func WriteComment(out io.Writer, value string) {
+// EmitComment writes a comment
+func EmitComment(out io.Writer, value string) {
 	fmt.Fprintf(out, "# %s\n", strings.Replace(value, "\n", "\n# ", -1))
 }
 
-// Instruction writes an instruction
-func WriteInstruction(out io.Writer, instruction, value string) {
+// EmitInstruction writes an instruction
+func EmitInstruction(out io.Writer, instruction, value string) {
 	fmt.Fprintf(out, "%s %s\n\n", instruction, strings.Replace(value, "\n", "\\\n", -1))
 }
 
+// Emit writes comments
 func (c *Comment) Emit(out io.Writer) {
-	WriteComment(out, c.Lines)
+	EmitComment(out, c.Lines)
 }
 
+// Emit writes FROM instruction
 func (f *From) Emit(out io.Writer) {
-	WriteInstruction(out, "FROM", f.Image)
+	EmitInstruction(out, "FROM", f.Image)
 }
 
+// Emit writes MAINTAINER instructions
 func (m *Maintainer) Emit(out io.Writer) {
-	WriteInstruction(out, "MAINTAINER", m.Name)
+	EmitInstruction(out, "MAINTAINER", m.Name)
 }
 
+// Emit writes RUN instructions
 func (r *Run) Emit(out io.Writer) {
-	WriteInstruction(out, "RUN", r.Command)
+	EmitInstruction(out, "RUN", r.Command)
 }
 
+// Emit writes LABEL instructions
 func (l *Label) Emit(out io.Writer) {
-	WriteInstruction(out, "LABEL", l.Pairs)
+	EmitInstruction(out, "LABEL", l.Pairs)
 }
 
+// Emit writes EXPOSE instructions
 func (e *Expose) Emit(out io.Writer) {
-	WriteInstruction(out, "EXPOSE", e.Ports)
+	EmitInstruction(out, "EXPOSE", e.Ports)
 }
 
+// Emit writes ENV instructions
 func (e *Env) Emit(out io.Writer) {
-	WriteInstruction(out, "ENV", e.Pairs)
+	EmitInstruction(out, "ENV", e.Pairs)
 }
 
+// Emit writes ADD instructions
 func (a *Add) Emit(out io.Writer) {
-	WriteInstruction(out, "ADD", a.Paths)
+	EmitInstruction(out, "ADD", a.Paths)
 }
 
+// Emit writes COPY instructions
 func (c *Copy) Emit(out io.Writer) {
-	WriteInstruction(out, "COPY", c.Paths)
+	EmitInstruction(out, "COPY", c.Paths)
 }
 
+// Emit writes ENTRYPOINT instructions
 func (e *Entrypoint) Emit(out io.Writer) {
-	WriteInstruction(out, "ENTRYPOINT", e.CmdLine)
+	EmitInstruction(out, "ENTRYPOINT", e.CmdLine)
 }
 
+// Emit writes VOLUME instructions
 func (v *Volume) Emit(out io.Writer) {
-	WriteInstruction(out, "VOLUME", v.Names)
+	EmitInstruction(out, "VOLUME", v.Names)
 }
 
+// Emit writes USER instructions
 func (u *User) Emit(out io.Writer) {
-	WriteInstruction(out, "USER", u.Name)
+	EmitInstruction(out, "USER", u.Name)
 }
 
+// Emit writes WORKDIR instructions
 func (w *Workdir) Emit(out io.Writer) {
-	WriteInstruction(out, "WORKDIR", w.Path)
+	EmitInstruction(out, "WORKDIR", w.Path)
 }
 
+// Emit writes ARG instructions
 func (a *Arg) Emit(out io.Writer) {
-	WriteInstruction(out, "ARG", a.Name)
+	EmitInstruction(out, "ARG", a.Name)
 }
 
+// Emit writes ONBUILD instructions
 func (o *Onbuild) Emit(out io.Writer) {
-	WriteInstruction(out, "ONBUILD", o.Instruction)
+	EmitInstruction(out, "ONBUILD", o.Instruction)
 }
 
+// Emit writes STOPSIGNAL instructions
 func (s *Stopsignal) Emit(out io.Writer) {
-	WriteInstruction(out, "STOPSIGNAL", s.Signal)
+	EmitInstruction(out, "STOPSIGNAL", s.Signal)
 }
 
+// Emit writes HEALTHCHECK instructions
 func (h *Healthcheck) Emit(out io.Writer) {
-	WriteInstruction(out, "HEALTHCHECK", h.Command)
+	EmitInstruction(out, "HEALTHCHECK", h.Command)
 }
 
+// Emit writes SHELL instructions
 func (s *Shell) Emit(out io.Writer) {
-	WriteInstruction(out, "SHELL", s.CmdLine)
+	EmitInstruction(out, "SHELL", s.CmdLine)
 }
 
+// Emit writes CMD instructions
 func (c *Cmd) Emit(out io.Writer) {
-	WriteInstruction(out, "CMD", c.CmdLine)
+	EmitInstruction(out, "CMD", c.CmdLine)
 }

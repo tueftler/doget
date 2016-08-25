@@ -98,7 +98,7 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 				)
 			}
 
-			dockerfile.WriteComment(t.Output, "Included from "+reference)
+			dockerfile.EmitComment(t.Output, "Included from "+reference)
 			t.write(parser, &included, filepath.ToSlash(path)+"/")
 			break
 
