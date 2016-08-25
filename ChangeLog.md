@@ -3,6 +3,11 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+## 0.5.0 / 2014-08-26
+
+* Added `Emit()` function to all dockerfile Statement instances
+  (@thekid)
+
 ## 0.4.0 / 2014-08-25
 
 * Merged PR #6: Make default configuration builtin instead of shipping it as 
