@@ -73,12 +73,7 @@ func download(uri, file string, progress func(transferred, total int64)) (int64,
 	}
 }
 
-func fetch(use *use.Statement, progress func(transferred, total int64)) (string, error) {
-	origin, err := use.Origin()
-	if err != nil {
-		return "", err
-	}
-
+func fetch(origin *use.Origin, progress func(transferred, total int64)) (string, error) {
 	target := filepath.Join("vendor", origin.Host, origin.Vendor, origin.Name)
 	zip := filepath.Join(target, origin.Version+".zip")
 

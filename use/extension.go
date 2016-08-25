@@ -36,6 +36,18 @@ func New(repositories map[string]map[string]string) *Context {
 	return &Context{Repositories: repositories}
 }
 
+// String creates a string representation of an origin
+func (o *Origin) String() string {
+	str := o.Host + "/" + o.Vendor + "/" + o.Name
+	if "" != o.Dir {
+		str += "/" + o.Dir
+	}
+	if "" != o.Version {
+		str += ":" + o.Version
+	}
+	return str
+}
+
 // Emit writes the USE statement
 func (s *Statement) Emit(out io.Writer) {
 	dockerfile.EmitInstruction(out, "USE", s.Reference)

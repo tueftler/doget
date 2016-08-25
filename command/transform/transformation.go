@@ -64,15 +64,19 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 		switch statement.(type) {
 		case *use.Statement:
 			var path string
-			reference := statement.(*use.Statement).Reference
 
-			path, err := fetch(statement.(*use.Statement), func(transferred, total int64) {
+			origin, err := statement.(*use.Statement).Origin()
+			if err != nil {
+				return err
+			}
+
+			path, err = fetch(origin, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
 				finished := int(math.Max(percentage*float64(20), 20))
 				fmt.Fprintf(
 					os.Stderr,
 					"\r> Fetching %s: [%s%s] %.2fkB",
-					reference,
+					origin.String(),
 					strings.Repeat("#", finished),
 					strings.Repeat("_", 20-finished),
 					float64(transferred)/float64(1024),
@@ -92,13 +96,13 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 			if included.From.Image != file.From.Image {
 				return fmt.Errorf(
 					"Include %s inherits from %s, which is incompatible with %s",
-					reference,
+					origin.String(),
 					included.From.Image,
 					file.From.Image,
 				)
 			}
 
-			dockerfile.EmitComment(t.Output, "Included from "+reference)
+			dockerfile.EmitComment(t.Output, "Included from "+origin.String())
 			t.write(parser, &included, filepath.ToSlash(path)+"/")
 			break
 
