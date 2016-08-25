@@ -1,6 +1,12 @@
 package dockerfile
 
-type Statement interface{}
+import (
+	"io"
+)
+
+type Statement interface {
+	Emit(out io.Writer)
+}
 
 type Dockerfile struct {
 	Source     string

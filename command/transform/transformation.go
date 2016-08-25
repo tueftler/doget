@@ -110,62 +110,12 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 			t.write(parser, &included, filepath.ToSlash(path)+"/")
 			break
 
-		// Retain comments
-		case *dockerfile.Comment:
-			t.comment(statement.(*dockerfile.Comment).Lines)
+		// Remove "FROM"
+		case *dockerfile.From:
 			break
 
-		// Builtin Docker instructions
-		case *dockerfile.Maintainer:
-			t.instruction("MAINTAINER", statement.(*dockerfile.Maintainer).Name)
-			break
-		case *dockerfile.Run:
-			t.instruction("RUN", statement.(*dockerfile.Run).Command)
-			break
-		case *dockerfile.Label:
-			t.instruction("LABEL", statement.(*dockerfile.Label).Pairs)
-			break
-		case *dockerfile.Expose:
-			t.instruction("EXPOSE", statement.(*dockerfile.Expose).Ports)
-			break
-		case *dockerfile.Env:
-			t.instruction("ENV", statement.(*dockerfile.Env).Pairs)
-			break
-		case *dockerfile.Add:
-			t.instruction("ADD", base+statement.(*dockerfile.Add).Paths)
-			break
-		case *dockerfile.Copy:
-			t.instruction("COPY", base+statement.(*dockerfile.Copy).Paths)
-			break
-		case *dockerfile.Entrypoint:
-			t.instruction("ENTRYPOINT", statement.(*dockerfile.Entrypoint).CmdLine)
-			break
-		case *dockerfile.Volume:
-			t.instruction("VOLUME", statement.(*dockerfile.Volume).Names)
-			break
-		case *dockerfile.User:
-			t.instruction("USER", statement.(*dockerfile.User).Name)
-			break
-		case *dockerfile.Workdir:
-			t.instruction("WORKDIR", statement.(*dockerfile.Workdir).Path)
-			break
-		case *dockerfile.Arg:
-			t.instruction("ARG", statement.(*dockerfile.Arg).Name)
-			break
-		case *dockerfile.Onbuild:
-			t.instruction("ONBUILD", statement.(*dockerfile.Onbuild).Instruction)
-			break
-		case *dockerfile.Stopsignal:
-			t.instruction("STOPSIGNAL", statement.(*dockerfile.Stopsignal).Signal)
-			break
-		case *dockerfile.Healthcheck:
-			t.instruction("HEALTHCHECK", statement.(*dockerfile.Healthcheck).Command)
-			break
-		case *dockerfile.Shell:
-			t.instruction("SHELL", statement.(*dockerfile.Shell).CmdLine)
-			break
-		case *dockerfile.Cmd:
-			t.instruction("CMD", statement.(*dockerfile.Cmd).CmdLine)
+		default:
+			statement.Emit(t.Output)
 			break
 		}
 	}
