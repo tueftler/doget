@@ -32,7 +32,7 @@ func configuration(file string) (*config.Configuration, error) {
 	if file == "" {
 		return config.Default().Merge(config.SearchPath()...)
 	} else {
-		return config.Empty().Merge(file)
+		return config.Empty().MustMerge(file)
 	}
 }
 

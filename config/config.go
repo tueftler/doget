@@ -54,6 +54,15 @@ func SearchPath() []string {
 
 // Merge Reads configuration from given sources
 func (c *Configuration) Merge(sources ...string) (*Configuration, error) {
+  return c.merge(false, sources...)
+}
+
+// MustMerge Reads configuration from given sources and yields an error if none exist
+func (c *Configuration) MustMerge(sources ...string) (*Configuration, error) {
+  return c.merge(true, sources...)
+}
+
+func (c *Configuration) merge(must bool, sources ...string) (*Configuration, error) {
 	parsed := make(map[string]bool)
 	for _, file := range sources {
 		if _, err := os.Stat(file); err != nil {
@@ -82,7 +91,7 @@ func (c *Configuration) Merge(sources ...string) (*Configuration, error) {
 		}
 	}
 
-	if 0 == len(parsed) {
+	if 0 == len(parsed) && must {
 		return nil, fmt.Errorf("None of the given config files exist: %q", sources)
 	}
 
