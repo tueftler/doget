@@ -2,8 +2,8 @@ package use
 
 import (
 	"reflect"
-	"testing"
 	"strings"
+	"testing"
 
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
@@ -45,6 +45,15 @@ func Test_origin_host(t *testing.T) {
 		return
 	}
 	assertEqual("github.com", origin.Host, t)
+}
+
+func Test_origin_illegal_host(t *testing.T) {
+	_, err := mustParse("USE example.com/thekid/trait").Origin()
+	if err == nil {
+		t.Error("Expected an error, have non")
+		return
+	}
+	assertEqual("No repository example.com", err.Error(), t)
 }
 
 func Test_origin_vendor(t *testing.T) {
@@ -109,4 +118,3 @@ func Test_origin_with_version(t *testing.T) {
 	}
 	assertEqual("v1.0.0", origin.Version, t)
 }
-

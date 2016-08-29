@@ -90,7 +90,7 @@ func (s *Statement) Origin() (origin *Origin, err error) {
 		origin.Uri = uri.String()
 		return origin, nil
 	} else {
-		return nil, fmt.Errorf("No repository %s", origin.Host)
+		return nil, fmt.Errorf("No repository %s", parsed[0])
 	}
 }
 

@@ -3,6 +3,10 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+## 0.6.0 / 2014-08-29
+
+* Fixed nil pointer dereference when handling nonexistant repositories
+  (@thekid)
 * Fixed leading and trailing whitespace in trait references leading to
   downloads breaking
   (@thekid, @mikey179)
