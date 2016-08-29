@@ -96,5 +96,5 @@ func (s *Statement) Origin() (origin *Origin, err error) {
 
 // Extension func for parser
 func (c *Context) Extension(file *dockerfile.Dockerfile, line int, tokens *dockerfile.Tokens) dockerfile.Statement {
-	return &Statement{Context: c, Line: line, Reference: strings.Trim(tokens.NextLine(), " ")}
+	return &Statement{Context: c, Line: line, Reference: strings.TrimSpace(tokens.NextLine())}
 }

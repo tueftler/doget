@@ -38,6 +38,14 @@ func Test_reference_with_leading_space(t *testing.T) {
 	assertEqual("github.com/thekid/trait", mustParse("USE  github.com/thekid/trait").Reference, t)
 }
 
+func Test_reference_with_trailing_tab(t *testing.T) {
+  assertEqual("github.com/thekid/trait", mustParse("USE github.com/thekid/trait\t").Reference, t)
+}
+
+func Test_reference_with_leading_tab(t *testing.T) {
+  assertEqual("github.com/thekid/trait", mustParse("USE\tgithub.com/thekid/trait").Reference, t)
+}
+
 func Test_origin_host(t *testing.T) {
 	origin, err := mustParse("USE github.com/thekid/trait").Origin()
 	if err != nil {
