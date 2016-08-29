@@ -3,6 +3,10 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed leading and trailing whitespace in trait references leading to
+  downloads breaking
+  (@thekid, @mikey179)
+
 ## 0.5.0 / 2014-08-26
 
 * Added `Emit()` function to all dockerfile Statement instances
