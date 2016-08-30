@@ -59,6 +59,19 @@ func (t *Transformation) Run(parser *dockerfile.Parser) error {
 	return t.write(parser, &file, "")
 }
 
+func prefix(paths, base string) string {
+	segments := strings.Split(paths, " ")
+	result := ""
+	for _, segment := range segments[0 : len(segments)-1] {
+		if strings.Contains(segment, "://") {
+			result += segment + " "
+		} else {
+			result += base + segment + " "
+		}
+	}
+	return result + segments[len(segments)-1]
+}
+
 func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
@@ -108,6 +121,16 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 
 		// Remove "FROM"
 		case *dockerfile.From:
+			break
+
+		// Prefix "ADD" paths:
+		case *dockerfile.Add:
+			dockerfile.EmitInstruction(t.Output, "ADD", prefix(statement.(*dockerfile.Add).Paths, base))
+			break
+
+		// Prefix "COPY" paths:
+		case *dockerfile.Copy:
+			dockerfile.EmitInstruction(t.Output, "COPY", prefix(statement.(*dockerfile.Copy).Paths, base))
 			break
 
 		default:
