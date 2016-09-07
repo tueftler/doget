@@ -16,6 +16,9 @@ type Configuration struct {
 	Repositories map[string]map[string]string `yaml:"repositories"`
 }
 
+// Vendordir depicts the basename of the directory where downloaded traits are stored
+const Vendordir string = "doget_modules"
+
 var (
 	search = []func() string{
 		func() string { return ".doget.yml" },
