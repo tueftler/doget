@@ -5,6 +5,9 @@ DoGet change log
 
 ## 0.8.0 / 2016-09-08
 
+* **Files are now stored in `doget_modules/` instead of `vendor/`!**
+  This resolves a conflict between DoGet and Composer
+  (@thekid, @mikey179)
 * Added `clean` subcommand as requested in #9. See pull request #13
   (@mikey179, @thekid)
 * Fixed issue #15: Escaped character leads to premature end of line.
