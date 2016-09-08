@@ -31,29 +31,26 @@ func open(output string) (io.Writer, error) {
 
 // Runs transform command
 func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
-	var input, output string
-	var performClean bool
-
-	c.flags.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
-	c.flags.StringVar(&output, "out", "Dockerfile", "Output. Use - for standard output")
-	c.flags.BoolVar(&performClean, "clean", false, "Remove vendor directory after transformation")
+	input := c.flags.String("in", "Dockerfile.in", "Input. Use - for standard input")
+	output := c.flags.String("out", "Dockerfile", "Output. Use - for standard output")
+	performClean := c.flags.Bool("clean", false, "Remove vendor directory after transformation")
 	c.flags.Parse(args)
 
-	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q)\n", input, output)
+	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q)\n", *input, *output)
 
-	if performClean {
+	if *performClean {
 		defer clean.NewCommand("clean").Run(parser, args)
 	}
 
 	// Open output
-	out, err := open(output)
+	out, err := open(*output)
 	if err != nil {
 		return err
 	}
 
 	// Transform
 	var buf bytes.Buffer
-	transformation := Transformation{Input: input, Output: &buf}
+	transformation := Transformation{Input: *input, Output: &buf}
 	if err := transformation.Run(parser); err != nil {
 		return err
 	}
