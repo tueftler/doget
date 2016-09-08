@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/tueftler/doget/command"
+	"github.com/tueftler/doget/command/clean"
 	"github.com/tueftler/doget/dockerfile"
 	"io"
 	"os"
@@ -31,12 +32,18 @@ func open(output string) (io.Writer, error) {
 // Runs transform command
 func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 	var input, output string
+	var performClean bool
 
 	c.flags.StringVar(&input, "in", "Dockerfile.in", "Input. Use - for standard input")
 	c.flags.StringVar(&output, "out", "Dockerfile", "Output. Use - for standard output")
+	c.flags.BoolVar(&performClean, "clean", false, "Remove vendor directory after transformation")
 	c.flags.Parse(args)
 
 	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q)\n", input, output)
+
+	if performClean {
+		defer clean.NewCommand("clean").Run(parser, args)
+	}
 
 	// Open output
 	out, err := open(output)

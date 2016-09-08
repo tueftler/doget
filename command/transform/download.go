@@ -2,6 +2,7 @@ package transform
 
 import (
 	"fmt"
+	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/use"
 	"io"
 	"net/http"
@@ -74,7 +75,7 @@ func download(uri, file string, progress func(transferred, total int64)) (int64,
 }
 
 func fetch(origin *use.Origin, progress func(transferred, total int64)) (string, error) {
-	target := filepath.Join("vendor", origin.Host, origin.Vendor, origin.Name)
+	target := filepath.Join(config.Vendordir, origin.Host, origin.Vendor, origin.Name)
 	zip := filepath.Join(target, origin.Version+".zip")
 
 	if err := os.MkdirAll(target, 0755); err != nil {
