@@ -3,6 +3,8 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+* Added `clean` subcommand as requested in #9. See pull request #13
+  (@mikey179, @thekid)
 * Fixed issue #15: Escaped character leads to premature end of line.
   See pull request #16
   (@mikey179)
