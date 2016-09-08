@@ -58,6 +58,12 @@ CMD /bin/bash
 	assertParsed(4, func(d Dockerfile) field { return len(d.Statements) }, file, t)
 }
 
+func Test_parsingIssue15(t *testing.T) {
+	file := `RUN sed -ri "s!^(\#\s*)?(elasticsearch\.url:).*!\2 'http://elasticsearch:9200'!" /opt/kibana/config/kibana.yml`
+
+	assertParsed(`sed -ri "s!^(\#\s*)?(elasticsearch\.url:).*!\2 'http://elasticsearch:9200'!" /opt/kibana/config/kibana.yml`, func(d Dockerfile) field { return d.Statements[0].(*Run).Command }, file, t)
+}
+
 func Test_parsing_empty(t *testing.T) {
 	assertParsed(0, func(d Dockerfile) field { return len(d.Statements) }, "", t)
 }
