@@ -121,6 +121,7 @@ func (t *Tokens) NextLine() string {
 			buf.WriteRune(r)
 			if n != eof {
 				buf.WriteRune(n)
+				continue
 			}
 			break
 		} else if '\n' == r && !continued {
