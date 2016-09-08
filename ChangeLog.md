@@ -3,6 +3,10 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #15: Escaped character leads to premature end of line.
+  See pull request #16
+  (@mikey179)
+
 ## 0.7.0 / 2016-08-30
 
 * Fixed issue with paths in `ADD` and `COPY` instructions not being
