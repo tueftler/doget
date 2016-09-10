@@ -128,7 +128,7 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 			t.write(parser, &included, filepath.ToSlash(path)+"/", provided)
 			break
 
-		// Do not emit
+		// Remove "FROM"
 		case *dockerfile.From:
 			break
 
