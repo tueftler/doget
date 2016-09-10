@@ -126,21 +126,3 @@ func Test_origin_with_version(t *testing.T) {
 	}
 	assertEqual("v1.0.0", origin.Version, t)
 }
-
-func Test_origin_without_as(t *testing.T) {
-	origin, err := mustParse("USE github.com/thekid/debian:jessie").Origin()
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-	assertEqual(true, nil == origin.As, t)
-}
-
-func Test_origin_with_as(t *testing.T) {
-	origin, err := mustParse("USE github.com/thekid/debian:jessie AS debian:jessie").Origin()
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-	assertEqual("debian:jessie", origin.As.Image, t)
-}

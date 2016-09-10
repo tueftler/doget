@@ -16,10 +16,6 @@ type Statement struct {
 	Reference string
 }
 
-type As struct {
-	Image string
-}
-
 // Context represents the use context
 type Context struct {
 	Repositories map[string]map[string]string
@@ -33,7 +29,6 @@ type Origin struct {
 	Version string
 	Dir     string
 	Uri     string
-	As      *As
 }
 
 // New creates a USE instruction backed by the given repositories
@@ -61,27 +56,17 @@ func (s *Statement) Emit(out io.Writer) {
 // Origin parses origin from reference
 func (s *Statement) Origin() (origin *Origin, err error) {
 	var parsed []string
-	var trait string
 
 	origin = &Origin{}
 
-	// Alias
-	if pos := strings.LastIndex(s.Reference, "AS"); pos != -1 {
-		origin.As = &As{Image: strings.TrimSpace(s.Reference[pos+2 : len(s.Reference)])}
-		trait = strings.TrimSpace(s.Reference[0:pos])
-	} else {
-		origin.As = nil
-		trait = s.Reference
-	}
-
 	// Version
-	pos := strings.LastIndex(trait, ":")
+	pos := strings.LastIndex(s.Reference, ":")
 	if pos == -1 {
-		parsed = strings.Split(trait, "/")
+		parsed = strings.Split(s.Reference, "/")
 		origin.Version = "master"
 	} else {
-		parsed = strings.Split(trait[0:pos], "/")
-		origin.Version = trait[pos+1 : len(trait)]
+		parsed = strings.Split(s.Reference[0:pos], "/")
+		origin.Version = s.Reference[pos+1 : len(s.Reference)]
 	}
 
 	origin.Host = parsed[0]
