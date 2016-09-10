@@ -9,6 +9,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 )
 
@@ -116,15 +117,15 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 
 			if origin.As != nil {
 				provided[origin.As.Image] = true
-				fmt.Printf("  Provides %q\n", origin.As.Image)
+				fmt.Printf("  Provides %q via alias\n", origin.As.Image)
 			}
 
 			if ok, _ := provided[included.From.Image]; !ok {
 				return fmt.Errorf(
-					"Include %s inherits from %s, which is incompatible with %s",
+					"Include %s requires %s, which was not found in provided %s",
 					origin.String(),
 					included.From.Image,
-					file.From.Image,
+					reflect.ValueOf(provided).MapKeys(),
 				)
 			}
 
