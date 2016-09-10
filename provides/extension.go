@@ -23,7 +23,7 @@ func (s *Statement) Images() []string {
 	result := make([]string, 0)
 	for _, image := range list {
 		if image != "" {
-			result = append(result, strings.TrimSpace(image))
+			result = append(result, image)
 		}
 	}
 	return result

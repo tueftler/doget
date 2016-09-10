@@ -44,6 +44,14 @@ func Test_two_images(t *testing.T) {
 func Test_images_with_whitespace(t *testing.T) {
 	assertEqual(
 		[]string{"thekid/trait:1.9", "thekid/trait:latest"},
+		mustParse("PROVIDES thekid/trait:1.9   thekid/trait:latest").Images(),
+		t,
+	)
+}
+
+func Test_images_with_leading_and_trailing_whitespace(t *testing.T) {
+	assertEqual(
+		[]string{"thekid/trait:1.9", "thekid/trait:latest"},
 		mustParse("PROVIDES  thekid/trait:1.9  thekid/trait:latest ").Images(),
 		t,
 	)
