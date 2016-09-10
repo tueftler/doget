@@ -3,6 +3,7 @@ package transform
 import (
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
+	"github.com/tueftler/doget/provides"
 	"github.com/tueftler/doget/use"
 	"io"
 	"math"
@@ -56,7 +57,7 @@ func (t *Transformation) Run(parser *dockerfile.Parser) error {
 	}
 
 	file.From.Emit(t.Output)
-	return t.write(parser, &file, "")
+	return t.write(parser, &file, "", map[string]bool{file.From.Image: true})
 }
 
 func prefix(paths, base string) string {
@@ -72,9 +73,16 @@ func prefix(paths, base string) string {
 	return result + segments[len(segments)-1]
 }
 
-func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string) error {
+func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string, provided map[string]bool) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
+		case *provides.Statement:
+			for _, image := range statement.(*provides.Statement).Images() {
+				provided[image] = true
+				fmt.Printf("  Provides %q\n", image)
+			}
+			break
+
 		case *use.Statement:
 			var path string
 
@@ -106,7 +114,12 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 				return err
 			}
 
-			if included.From.Image != file.From.Image {
+			if origin.As != nil {
+				provided[origin.As.Image] = true
+				fmt.Printf("  Provides %q\n", origin.As.Image)
+			}
+
+			if ok, _ := provided[included.From.Image]; !ok {
 				return fmt.Errorf(
 					"Include %s inherits from %s, which is incompatible with %s",
 					origin.String(),
@@ -116,10 +129,10 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 			}
 
 			dockerfile.EmitComment(t.Output, "Included from "+origin.String())
-			t.write(parser, &included, filepath.ToSlash(path)+"/")
+			t.write(parser, &included, filepath.ToSlash(path)+"/", provided)
 			break
 
-		// Remove "FROM"
+		// Do not emit
 		case *dockerfile.From:
 			break
 

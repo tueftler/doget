@@ -16,6 +16,10 @@ type Statement struct {
 	Reference string
 }
 
+type As struct {
+	Image string
+}
+
 // Context represents the use context
 type Context struct {
 	Repositories map[string]map[string]string
@@ -29,6 +33,7 @@ type Origin struct {
 	Version string
 	Dir     string
 	Uri     string
+	As      *As
 }
 
 // New creates a USE instruction backed by the given repositories
@@ -56,27 +61,42 @@ func (s *Statement) Emit(out io.Writer) {
 // Origin parses origin from reference
 func (s *Statement) Origin() (origin *Origin, err error) {
 	var parsed []string
-	var version, dir string
+	var trait string
 
-	pos := strings.LastIndex(s.Reference, ":")
-	if pos == -1 {
-		parsed = strings.Split(s.Reference, "/")
-		version = "master"
+	origin = &Origin{}
+
+	// Alias
+	if pos := strings.LastIndex(s.Reference, "AS"); pos != -1 {
+		origin.As = &As{Image: strings.TrimSpace(s.Reference[pos+2 : len(s.Reference)])}
+		trait = strings.TrimSpace(s.Reference[0:pos])
 	} else {
-		parsed = strings.Split(s.Reference[0:pos], "/")
-		version = s.Reference[pos+1 : len(s.Reference)]
+		origin.As = nil
+		trait = s.Reference
 	}
 
-	if len(parsed) == 3 {
-		dir = ""
+	// Version
+	pos := strings.LastIndex(trait, ":")
+	if pos == -1 {
+		parsed = strings.Split(trait, "/")
+		origin.Version = "master"
 	} else {
-		dir = strings.Join(parsed[3:len(parsed)], "/")
+		parsed = strings.Split(trait[0:pos], "/")
+		origin.Version = trait[pos+1 : len(trait)]
+	}
+
+	origin.Host = parsed[0]
+	origin.Vendor = parsed[1]
+	origin.Name = parsed[2]
+
+	// Subdirectory
+	if len(parsed) > 3 {
+		origin.Dir = strings.Join(parsed[3:len(parsed)], "/")
+	} else {
+		origin.Dir = ""
 	}
 
 	// Compile URL
-	if repository, ok := s.Context.Repositories[parsed[0]]; ok {
-		origin = &Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
-
+	if repository, ok := s.Context.Repositories[origin.Host]; ok {
 		template, err := template.New(origin.Host).Parse(repository["url"])
 		if err != nil {
 			return nil, err
@@ -90,7 +110,7 @@ func (s *Statement) Origin() (origin *Origin, err error) {
 		origin.Uri = uri.String()
 		return origin, nil
 	} else {
-		return nil, fmt.Errorf("No repository %s", parsed[0])
+		return nil, fmt.Errorf("No repository %s", origin.Host)
 	}
 }
 
