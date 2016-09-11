@@ -39,7 +39,7 @@ The resulting `Dockerfile` will now have the trait's contents in place of the *U
 ```dockerfile
 FROM debian:jessie
 
-# Included from github.com/thekid/gosu
+# Included from github.com/thekid/traits/gosu
 ENV GOSU_VERSION 1.9
 
 RUN set -x \
@@ -52,12 +52,12 @@ CMD ["/bin/bash"]
 
 Versioning
 ----------
-Versions can be added to includes just like tags in docker images:
+Git branches, tags and commit SHAs can be added to includes just like tags in docker images:
 
 ```dockerfile
 FROM debian:jessie
 
-USE github.com/thekid/gosu:v1.0.0
+USE github.com/thekid/traits/xp:master
 
 CMD ["/bin/bash"]
 ```
