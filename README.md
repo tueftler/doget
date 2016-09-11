@@ -2,7 +2,7 @@ DoGet
 =====
 [![Build Status on TravisCI](https://secure.travis-ci.org/tueftler/doget.png)](http://travis-ci.org/tueftler/doget)
 
-Composes dockerfiles from traits like the one [here](https://github.com/thekid/gosu).
+Composes dockerfiles from traits like the ones [here](https://github.com/thekid/traits).
 
 Setup
 -----
@@ -20,7 +20,7 @@ Start with this in a file called `Dockerfile.in`:
 ```dockerfile
 FROM debian:jessie
 
-USE github.com/thekid/gosu
+USE github.com/thekid/traits/gosu
 
 CMD ["/bin/bash"]
 ```
