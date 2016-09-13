@@ -3,6 +3,12 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+## 0.9.0 / 2016-09-13
+
+* Implemented feature request #12: Implement PROVIDES instruction
+  See pull request #17
+  (@thekid, @mikey179)
+
 ## 0.8.0 / 2016-09-08
 
 * **Files are now stored in `doget_modules/` instead of `vendor/`!**
