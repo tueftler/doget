@@ -18,6 +18,17 @@ type Transformation struct {
 	Output io.Writer
 }
 
+type Provided map[string]bool
+
+func (p Provided) add(image string) {
+	p[image] = true
+}
+
+func (p Provided) contains(image string) bool {
+	ok, _ := p[image]
+	return ok
+}
+
 func parse(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile) error {
 	if err := parser.ParseFile(input, file); err != nil {
 		return err
@@ -58,7 +69,7 @@ func (t *Transformation) Run(parser *dockerfile.Parser) error {
 	}
 
 	file.From.Emit(t.Output)
-	return t.write(parser, &file, "", map[string]bool{file.From.Image: true})
+	return t.write(parser, &file, "", Provided{file.From.Image: true})
 }
 
 func prefix(paths, base string) string {
@@ -74,12 +85,12 @@ func prefix(paths, base string) string {
 	return result + segments[len(segments)-1]
 }
 
-func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string, provided map[string]bool) error {
+func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string, provided Provided) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *provides.Statement:
 			for _, image := range statement.(*provides.Statement).Images() {
-				provided[image] = true
+				provided.add(image)
 				fmt.Printf("  Provides %q\n", image)
 			}
 			break
@@ -115,7 +126,7 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 				return err
 			}
 
-			if ok, _ := provided[included.From.Image]; !ok {
+			if !provided.contains(included.From.Image) {
 				return fmt.Errorf(
 					"Include %s requires %s, which was not found in provided %s",
 					origin.String(),
