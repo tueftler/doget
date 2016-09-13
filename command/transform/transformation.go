@@ -15,8 +15,9 @@ import (
 )
 
 type Transformation struct {
-	Input  string
-	Output io.Writer
+	Input    string
+	Output   io.Writer
+	UseCache bool
 }
 
 type Provided map[string]bool
@@ -104,7 +105,7 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 				return err
 			}
 
-			path, err = fetch(origin, func(transferred, total int64) {
+			path, err = fetch(origin, t.UseCache, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
 				finished := int(math.Max(percentage*float64(20), 20))
 				fmt.Fprintf(

@@ -75,20 +75,29 @@ func download(uri, file string, progress func(transferred, total int64)) (int64,
 	}
 }
 
-func fetch(origin *use.Origin, progress func(transferred, total int64)) (string, error) {
+func fetch(origin *use.Origin, useCache bool, progress func(transferred, total int64)) (string, error) {
 	target := filepath.Join(config.Vendordir, origin.Host, origin.Vendor, origin.Name)
 	zip := filepath.Join(target, origin.Version+".zip")
 
-	if err := os.MkdirAll(target, 0755); err != nil {
-		return "", err
+	doDownload := !useCache
+	if _, err := os.Stat(zip); err != nil {
+		doDownload = true
 	}
 
-	if _, err := download(origin.Uri, zip, progress); err != nil {
-		return "", err
-	}
+	if doDownload {
+		if err := os.MkdirAll(target, 0755); err != nil {
+			return "", err
+		}
 
-	if err := unzip(zip, target, strings.NewReplacer(origin.Name+"-"+origin.Version+"/", "")); err != nil {
-		return "", err
+		if _, err := download(origin.Uri, zip, progress); err != nil {
+			return "", err
+		}
+
+		if err := unzip(zip, target, strings.NewReplacer(origin.Name+"-"+origin.Version+"/", "")); err != nil {
+			return "", err
+		}
+	} else {
+		fmt.Printf("> Using %s", origin.String())
 	}
 
 	return filepath.Join(target, origin.Dir), nil
