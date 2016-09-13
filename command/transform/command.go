@@ -35,6 +35,7 @@ func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 	input := c.flags.String("in", "Dockerfile.in", "Input. Use - for standard input")
 	output := c.flags.String("out", "Dockerfile", "Output. Use - for standard output")
 	performClean := c.flags.Bool("clean", false, "Remove vendor directory after transformation")
+	noCache := c.flags.Bool("no-cache", false, "Do not use cache")
 	c.flags.Parse(args)
 
 	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q)\n", *input, *output)
@@ -51,7 +52,7 @@ func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 
 	// Transform
 	var buf bytes.Buffer
-	transformation := Transformation{Input: *input, Output: &buf}
+	transformation := Transformation{Input: *input, Output: &buf, UseCache: !*noCache}
 	if err := transformation.Run(parser); err != nil {
 		return err
 	}
