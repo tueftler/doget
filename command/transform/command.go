@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -21,14 +20,6 @@ type TransformCommand struct {
 // Creates new transform command instance
 func NewCommand(name string) *TransformCommand {
 	return &TransformCommand{flags: flag.NewFlagSet(name, flag.ExitOnError)}
-}
-
-func open(output string) (io.Writer, error) {
-	if output == "-" {
-		return os.Stdout, nil
-	} else {
-		return os.Create(output)
-	}
 }
 
 // Runs transform command
