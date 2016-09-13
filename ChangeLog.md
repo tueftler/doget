@@ -3,6 +3,12 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+* **Changed transformation to use doget_modules cache if available!**
+  Instead of downloading dependencies every time; can be overridden via
+  `--no-cache=true`. This way, users can lock dependencies by checking
+  in the doget_modules directory. See pull request #23.
+  (@thekid)
+
 ## 0.9.0 / 2016-09-13
 
 * Implemented feature request #12: Implement PROVIDES instruction
