@@ -9,6 +9,7 @@ import (
 	"github.com/tueftler/doget/command/transform"
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
+	"github.com/tueftler/doget/provides"
 	"github.com/tueftler/doget/use"
 	"os"
 )
@@ -44,7 +45,9 @@ func main() {
 
 	*cmdName = flag.Arg(0)
 	if delegate, ok := commands[*cmdName]; ok {
-		parser := dockerfile.NewParser().Extend("USE", use.New(configuration.Repositories).Extension)
+		parser := dockerfile.NewParser().
+			Extend("USE", use.New(configuration.Repositories).Extension).
+			Extend("PROVIDES", provides.Extension)
 
 		args := flag.Args()
 		if err := delegate.Run(parser, args[1:len(args)]); err != nil {

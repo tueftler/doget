@@ -56,27 +56,32 @@ func (s *Statement) Emit(out io.Writer) {
 // Origin parses origin from reference
 func (s *Statement) Origin() (origin *Origin, err error) {
 	var parsed []string
-	var version, dir string
 
+	origin = &Origin{}
+
+	// Version
 	pos := strings.LastIndex(s.Reference, ":")
 	if pos == -1 {
 		parsed = strings.Split(s.Reference, "/")
-		version = "master"
+		origin.Version = "master"
 	} else {
 		parsed = strings.Split(s.Reference[0:pos], "/")
-		version = s.Reference[pos+1 : len(s.Reference)]
+		origin.Version = s.Reference[pos+1 : len(s.Reference)]
 	}
 
-	if len(parsed) == 3 {
-		dir = ""
+	origin.Host = parsed[0]
+	origin.Vendor = parsed[1]
+	origin.Name = parsed[2]
+
+	// Subdirectory
+	if len(parsed) > 3 {
+		origin.Dir = strings.Join(parsed[3:len(parsed)], "/")
 	} else {
-		dir = strings.Join(parsed[3:len(parsed)], "/")
+		origin.Dir = ""
 	}
 
 	// Compile URL
-	if repository, ok := s.Context.Repositories[parsed[0]]; ok {
-		origin = &Origin{Host: parsed[0], Vendor: parsed[1], Name: parsed[2], Dir: dir, Version: version}
-
+	if repository, ok := s.Context.Repositories[origin.Host]; ok {
 		template, err := template.New(origin.Host).Parse(repository["url"])
 		if err != nil {
 			return nil, err
@@ -90,7 +95,7 @@ func (s *Statement) Origin() (origin *Origin, err error) {
 		origin.Uri = uri.String()
 		return origin, nil
 	} else {
-		return nil, fmt.Errorf("No repository %s", parsed[0])
+		return nil, fmt.Errorf("No repository %s", origin.Host)
 	}
 }
 

@@ -3,17 +3,30 @@ package transform
 import (
 	"fmt"
 	"github.com/tueftler/doget/dockerfile"
+	"github.com/tueftler/doget/provides"
 	"github.com/tueftler/doget/use"
 	"io"
 	"math"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 )
 
 type Transformation struct {
 	Input  string
 	Output io.Writer
+}
+
+type Provided map[string]bool
+
+func (p Provided) add(image string) {
+	p[image] = true
+}
+
+func (p Provided) contains(image string) bool {
+	ok, _ := p[image]
+	return ok
 }
 
 func parse(parser *dockerfile.Parser, input string, file *dockerfile.Dockerfile) error {
@@ -56,7 +69,7 @@ func (t *Transformation) Run(parser *dockerfile.Parser) error {
 	}
 
 	file.From.Emit(t.Output)
-	return t.write(parser, &file, "")
+	return t.write(parser, &file, "", Provided{file.From.Image: true})
 }
 
 func prefix(paths, base string) string {
@@ -72,9 +85,16 @@ func prefix(paths, base string) string {
 	return result + segments[len(segments)-1]
 }
 
-func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string) error {
+func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string, provided Provided) error {
 	for _, statement := range file.Statements {
 		switch statement.(type) {
+		case *provides.Statement:
+			for _, image := range statement.(*provides.Statement).Images() {
+				provided.add(image)
+				fmt.Printf("  Provides %q\n", image)
+			}
+			break
+
 		case *use.Statement:
 			var path string
 
@@ -106,17 +126,17 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 				return err
 			}
 
-			if included.From.Image != file.From.Image {
+			if !provided.contains(included.From.Image) {
 				return fmt.Errorf(
-					"Include %s inherits from %s, which is incompatible with %s",
+					"Include %s requires %s, which was not found in provided %s",
 					origin.String(),
 					included.From.Image,
-					file.From.Image,
+					reflect.ValueOf(provided).MapKeys(),
 				)
 			}
 
 			dockerfile.EmitComment(t.Output, "Included from "+origin.String())
-			t.write(parser, &included, filepath.ToSlash(path)+"/")
+			t.write(parser, &included, filepath.ToSlash(path)+"/", provided)
 			break
 
 		// Remove "FROM"
