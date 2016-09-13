@@ -80,7 +80,7 @@ func fetch(origin *use.Origin, useCache bool, progress func(transferred, total i
 	zip := filepath.Join(target, origin.Version+".zip")
 
 	doDownload := !useCache
-	if _, err := os.Stat(zip); err != nil {
+	if _, err := os.Stat(target); err != nil {
 		doDownload = true
 	}
 
