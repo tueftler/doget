@@ -2,13 +2,14 @@ package transform
 
 import (
 	"fmt"
-	"github.com/tueftler/doget/config"
-	"github.com/tueftler/doget/use"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/tueftler/doget/config"
+	"github.com/tueftler/doget/use"
 )
 
 type Track struct {

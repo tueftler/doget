@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
+	"os"
+
 	"github.com/tueftler/doget/command"
 	"github.com/tueftler/doget/command/clean"
 	"github.com/tueftler/doget/dockerfile"
-	"io"
-	"os"
 )
 
 type TransformCommand struct {

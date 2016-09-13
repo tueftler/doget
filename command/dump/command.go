@@ -3,6 +3,7 @@ package dump
 import (
 	"flag"
 	"fmt"
+
 	"github.com/tueftler/doget/command"
 	"github.com/tueftler/doget/dockerfile"
 )

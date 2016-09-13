@@ -1,9 +1,10 @@
 package provides
 
 import (
-	"github.com/tueftler/doget/dockerfile"
 	"io"
 	"strings"
+
+	"github.com/tueftler/doget/dockerfile"
 )
 
 // Statement represents a single PROVIDES statement

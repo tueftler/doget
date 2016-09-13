@@ -3,10 +3,11 @@ package use
 import (
 	"bytes"
 	"fmt"
-	"github.com/tueftler/doget/dockerfile"
 	"io"
 	"strings"
 	"text/template"
+
+	"github.com/tueftler/doget/dockerfile"
 )
 
 // Statement represents a single USE statement

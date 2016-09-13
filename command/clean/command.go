@@ -2,10 +2,11 @@ package clean
 
 import (
 	"flag"
+	"os"
+
 	"github.com/tueftler/doget/command"
 	"github.com/tueftler/doget/config"
 	"github.com/tueftler/doget/dockerfile"
-	"os"
 )
 
 // CleanCommand allows to remove the vendor directory and all of its contents

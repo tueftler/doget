@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/tueftler/doget/command"
 	"github.com/tueftler/doget/command/clean"
 	"github.com/tueftler/doget/command/dump"
@@ -11,7 +13,6 @@ import (
 	"github.com/tueftler/doget/dockerfile"
 	"github.com/tueftler/doget/provides"
 	"github.com/tueftler/doget/use"
-	"os"
 )
 
 var (

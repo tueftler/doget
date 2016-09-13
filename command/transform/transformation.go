@@ -2,15 +2,16 @@ package transform
 
 import (
 	"fmt"
-	"github.com/tueftler/doget/dockerfile"
-	"github.com/tueftler/doget/provides"
-	"github.com/tueftler/doget/use"
 	"io"
 	"math"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/tueftler/doget/dockerfile"
+	"github.com/tueftler/doget/provides"
+	"github.com/tueftler/doget/use"
 )
 
 type Transformation struct {
