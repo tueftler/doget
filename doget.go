@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/tueftler/doget/command"
+	"github.com/tueftler/doget/command/build"
 	"github.com/tueftler/doget/command/clean"
 	"github.com/tueftler/doget/command/dump"
 	"github.com/tueftler/doget/command/transform"
@@ -16,6 +17,7 @@ import (
 
 var (
 	commands = map[string]command.Command{
+		"build":     build.NewCommand("build"),
 		"dump":      dump.NewCommand("dump"),
 		"transform": transform.NewCommand("transform"),
 		"clean":     clean.NewCommand("clean"),
@@ -32,7 +34,7 @@ func configuration(file string) (*config.Configuration, error) {
 
 func main() {
 	var (
-		cmdName    = flag.String("#1", "", "Command, one of [clean, dump, transform]")
+		cmdName    = flag.String("#1", "", "Command, one of [build, clean, dump, transform]")
 		configFile = flag.String("config", "", "Configuration file to use")
 	)
 	flag.Parse()
