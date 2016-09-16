@@ -26,11 +26,15 @@ func NewCommand(name string) *TransformCommand {
 func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 	input := c.flags.String("in", "Dockerfile.in", "Input. Use - for standard input")
 	output := c.flags.String("out", "Dockerfile", "Output. Use - for standard output")
-	performClean := c.flags.Bool("clean", false, "Remove vendor directory after transformation")
+	performClean := c.flags.Bool("clean", false, "Remove "+config.Vendordir+" directory after transformation")
 	noCache := c.flags.Bool("no-cache", false, "Do not use cache")
 	c.flags.Parse(args)
 
 	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q)\n", *input, *output)
+
+	if *performClean {
+		defer os.RemoveAll(config.Vendordir)
+	}
 
 	storage := config.Vendordir + ".zip"
 	if _, err := os.Stat(storage); err == nil {
@@ -43,11 +47,10 @@ func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 
 	// Transform
 	var buf bytes.Buffer
-	defer os.RemoveAll(config.Vendordir)
 	transformation := Transformation{Input: *input, Output: &buf, UseCache: !*noCache}
 	err := transformation.Run(parser)
 
-	if err == nil && !*performClean {
+	if err == nil {
 		fmt.Fprint(os.Stderr, "> Caching...")
 		if err := mkzip(config.Vendordir, storage); err != nil {
 			return err
