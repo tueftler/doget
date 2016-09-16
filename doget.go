@@ -9,6 +9,7 @@ import (
 	"github.com/tueftler/doget/command/dump"
 	"github.com/tueftler/doget/command/transform"
 	"github.com/tueftler/doget/config"
+	"github.com/tueftler/doget/docker"
 	"github.com/tueftler/doget/dockerfile"
 	"github.com/tueftler/doget/provides"
 	"github.com/tueftler/doget/use"
@@ -16,13 +17,20 @@ import (
 )
 
 var (
-	commands = map[string]command.Command{
-		"build":     build.NewCommand("build"),
-		"dump":      dump.NewCommand("dump"),
-		"transform": transform.NewCommand("transform"),
-		"clean":     clean.NewCommand("clean"),
-	}
+	commands = make(map[string]command.Command)
 )
+
+func init() {
+	commands["dump"] = dump.NewCommand("dump")
+	commands["transform"] = transform.NewCommand("transform")
+	commands["clean"] = clean.NewCommand("clean")
+	commands["build"] = build.NewCommand(
+		"build",
+		commands["transform"],
+		commands["clean"],
+		docker.Create("docker"),
+	)
+}
 
 func configuration(file string) (*config.Configuration, error) {
 	if file == "" {

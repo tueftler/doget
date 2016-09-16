@@ -3,38 +3,44 @@ package build
 import (
 	"flag"
 	"github.com/tueftler/doget/command"
-	"github.com/tueftler/doget/command/clean"
-	"github.com/tueftler/doget/command/transform"
+	"github.com/tueftler/doget/docker"
 	"github.com/tueftler/doget/dockerfile"
-	"os/exec"
 	"strings"
 )
 
 // BuildCommand is a thin wrapper around transform > docker build > clean
 type BuildCommand struct {
 	command.Command
-	flags *flag.FlagSet
+	flags     *flag.FlagSet
+	transform command.Command
+	docker    docker.Client
+	clean     command.Command
 }
 
 // NewCommand creates new build command instance
-func NewCommand(name string) *BuildCommand {
-	return &BuildCommand{flags: flag.NewFlagSet(name, flag.ExitOnError)}
+func NewCommand(name string, transform command.Command, clean command.Command, client docker.Client) *BuildCommand {
+	return &BuildCommand{
+		flags:     flag.NewFlagSet(name, flag.ExitOnError),
+		transform: transform,
+		docker:    client,
+		clean:     clean,
+	}
 }
 
 // Run performs action of build command
 func (b *BuildCommand) Run(parser *dockerfile.Parser, args []string) error {
 	transformArgs, dockerArgs := split(args)
-	err := transform.NewCommand("transform").Run(parser, transformArgs)
+	err := b.transform.Run(parser, transformArgs)
 	if nil != err {
 		return err
 	}
 
-	err = exec.Command("docker", dockerArgs...).Run()
+	err = b.docker.Build(dockerArgs)
 	if nil != err {
 		return err
 	}
 
-	err = clean.NewCommand("clean").Run(parser, []string{})
+	err = b.clean.Run(parser, []string{})
 	if nil != err {
 		return err
 	}
@@ -44,7 +50,7 @@ func (b *BuildCommand) Run(parser *dockerfile.Parser, args []string) error {
 
 func split(args []string) ([]string, []string) {
 	transformArgs := []string{}
-	dockerArgs := []string{"build"}
+	dockerArgs := []string{}
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--doget-") {
 			for _, val := range strings.Split(strings.Replace(arg, "--doget", "", 1), "=") {
