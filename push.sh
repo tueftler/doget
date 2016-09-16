@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 branch=${1-none}
 tag=${2-}
 
-if [ "" != "$tag" ] && [ ${tag:1:1} -ge 1 ]; then
-  version=${tag:0:2}
+if [ "" != "$tag" ] ; then
+  version=$(echo $tag | head -c 2)
 elif [ "master" != $branch ] ; then
   echo "Not pushing branch $branch"
   exit 0
