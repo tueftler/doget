@@ -2,76 +2,26 @@ DoGet
 =====
 [![Build Status on TravisCI](https://secure.travis-ci.org/tueftler/doget.png)](http://travis-ci.org/tueftler/doget)
 
-Composes dockerfiles from traits like the ones [here](https://github.com/thekid/traits).
+Dockerfiles can only inherit from one source. What if you want to want to your favorite application on your own base image? Then you're down to copy&pasting Dockerfile code all over the place. 
 
-Setup
------
-Build the tool as follows:
+**DoGet solves this**. Think of DoGet as "compiler-assisted copy&paste". Here's an example:
+
+```dockerfile
+FROM corporate.example.com/images/debian:8        # Our own base image
+
+PROVIDES debian:jessie                            # ...which is basically Debian Jessie
+
+USE github.com/docker-library/php/7.0             # On top of that, use official PHP 7.0
+
+# <Insert app here>
+```
+
+DoGet extends Dockerfile syntax with `PROVIDES` and `USE` instructions. The `USE` instruction downloads the Dockerfile from the specified location and includes its contents (as if it had been copy&pasted). The `FROM` instruction in included files is checked for compatibility. The `PROVIDES` instruction serves the purpose of satisfying the compatibility check.
+
+To use the tool, copy the above into a file called `Dockerfile.in` and type:
 
 ```sh
-$ go get gopkg.in/yaml.v2
-$ go build github.com/tueftler/doget
+$ doget build
 ```
 
-Usage
------
-Start with this in a file called `Dockerfile.in`:
-
-```dockerfile
-FROM debian:jessie
-
-USE github.com/thekid/traits/gosu
-
-CMD ["/bin/bash"]
-```
-
-Running the tool will give you this:
-
-```sh
-$ doget transform
-> Running transform("Dockerfile.in" -> "Dockerfile")
-> Fetching github.com/thekid/gosu:master: [####################] 0.74kB
-Done
-```
-
-The resulting `Dockerfile` will now have the trait's contents in place of the *USE* instruction.
-
-```dockerfile
-FROM debian:jessie
-
-# Included from github.com/thekid/traits/gosu
-ENV GOSU_VERSION 1.9
-
-RUN set -x \
-    && apt-get update && apt-get install -y 
-    ...
-    && apt-get purge -y --auto-remove ca-certificates wget
-
-CMD ["/bin/bash"]
-```
-
-Versioning
-----------
-Git branches, tags and commit SHAs can be added to includes just like tags in docker images:
-
-```dockerfile
-FROM debian:jessie
-
-USE github.com/thekid/traits/xp:master
-
-CMD ["/bin/bash"]
-```
-
-Including subdirectories
-------------------------
-The following will include the `Dockerfile` from the subdirectory `7.0` rather than from the repository root.
-
-```dockerfile
-FROM debian:jessie
-
-USE github.com/docker-library/php/7.0
-
-RUN docker-php-ext-install bcmath
-
-CMD ["/bin/bash"]
-```
+This will resolve traits, downloading if necessary, and pass on the created Dockerfile to *docker build*.
