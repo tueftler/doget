@@ -6,22 +6,32 @@ import (
 	"os"
 
 	"github.com/tueftler/doget/command"
+	"github.com/tueftler/doget/command/build"
 	"github.com/tueftler/doget/command/clean"
 	"github.com/tueftler/doget/command/dump"
 	"github.com/tueftler/doget/command/transform"
 	"github.com/tueftler/doget/config"
+	"github.com/tueftler/doget/docker"
 	"github.com/tueftler/doget/dockerfile"
 	"github.com/tueftler/doget/provides"
 	"github.com/tueftler/doget/use"
 )
 
 var (
-	commands = map[string]command.Command{
-		"dump":      dump.NewCommand("dump"),
-		"transform": transform.NewCommand("transform"),
-		"clean":     clean.NewCommand("clean"),
-	}
+	commands = make(map[string]command.Command)
 )
+
+func init() {
+	commands["dump"] = dump.NewCommand("dump")
+	commands["transform"] = transform.NewCommand("transform")
+	commands["clean"] = clean.NewCommand("clean")
+	commands["build"] = build.NewCommand(
+		"build",
+		commands["transform"],
+		commands["clean"],
+		docker.Create("docker"),
+	)
+}
 
 func configuration(file string) (*config.Configuration, error) {
 	if file == "" {
@@ -33,7 +43,7 @@ func configuration(file string) (*config.Configuration, error) {
 
 func main() {
 	var (
-		cmdName    = flag.String("#1", "", "Command, one of [clean, dump, transform]")
+		cmdName    = flag.String("#1", "", "Command, one of [build, clean, dump, transform]")
 		configFile = flag.String("config", "", "Configuration file to use")
 	)
 	flag.Parse()
