@@ -22,8 +22,9 @@ func NewCommand(name string) *CleanCommand {
 
 // Run performs action of clean command
 func (c *CleanCommand) Run(parser *dockerfile.Parser, args []string) error {
-	if _, err := os.Stat(config.Vendordir); nil == err {
-		return os.RemoveAll(config.Vendordir)
+	target := config.Vendordir + ".zip"
+	if _, err := os.Stat(target); nil == err {
+		return os.RemoveAll(target)
 	}
 
 	return nil
