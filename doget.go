@@ -19,6 +19,7 @@ import (
 
 var (
 	commands = make(map[string]command.Command)
+	version  = "1.0.0-dev"
 )
 
 func init() {
@@ -67,7 +68,8 @@ func main() {
 		}
 	} else {
 		fmt.Printf("Cannot handle command %q\n", *cmdName)
-		flag.Usage()
+		fmt.Printf("DoGet version %s, usage:\n", version)
+		flag.PrintDefaults()
 		os.Exit(2)
 	}
 }

@@ -3,6 +3,8 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+## 1.0.0 / ????-??-??
+
 * Added *build* command which wraps around `docker build`. See PR #25
   (@mikey179)
 * **Changed transformation to use doget_modules cache if available!**
