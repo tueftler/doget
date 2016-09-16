@@ -3,10 +3,12 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+* Added *build* command which wraps around `docker build`. See PR #25
+  (@mikey179)
 * **Changed transformation to use doget_modules cache if available!**
   Instead of downloading dependencies every time; can be overridden via
   `--no-cache=true`. This way, users can lock dependencies by checking
-  in the doget_modules directory. See pull request #23.
+  in the *doget_modules.zip* file. See issue #21 and PRs #23 and #24.
   (@thekid)
 
 ## 0.9.0 / 2016-09-13
