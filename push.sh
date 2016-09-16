@@ -18,6 +18,6 @@ docker push tueftler/doget
 
 if [ "" != "$version" ] ; then
   echo "Pushing :$version"
-  docker tag tueftler/doget:$version tueftler/doget:latest
+  docker tag tueftler/doget:latest tueftler/doget:$version
   docker push tueftler/doget:$version
 fi
