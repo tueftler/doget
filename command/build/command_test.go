@@ -58,11 +58,7 @@ func (m *mock) Init(name string) {
 
 func (m *mock) Run(parser *dockerfile.Parser, args []string) error {
 	m.executed = true
-	if nil != m.err {
-		return m.err
-	}
-
-	return nil
+	return m.err
 }
 
 func Test_dockerBuildNotExecutedWhenTransformFails(t *testing.T) {
