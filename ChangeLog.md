@@ -3,7 +3,7 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
-## 1.0.0 / ????-??-??
+## 1.0.0 / 2016-09-16
 
 * Added *build* command which wraps around `docker build`. See PR #25
   (@mikey179)
