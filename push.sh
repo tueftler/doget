@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 branch=${1-none}
 tag=${2-}
@@ -13,11 +13,11 @@ else
 fi
 
 echo "Pushing :latest"
-docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" ;
-docker push tueftler/doget ;
+docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+docker push tueftler/doget
 
 if [ "" != "$version" ] ; then
   echo "Pushing :$version"
-  docker tag tueftler/doget:$version tueftler/doget:latest;
-  docker push tueftler/doget:$version;
+  docker tag tueftler/doget:$version tueftler/doget:latest
+  docker push tueftler/doget:$version
 fi
