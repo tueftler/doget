@@ -28,7 +28,7 @@ This will resolve traits, downloading if necessary, and pass on the created Dock
 
 ## Installing
 
-You will need [Go 1.6](https://golang.org/) installed. Then, type:
+You will need [Go >= 1.6](https://golang.org/) installed. Then, type:
 
 ```sh
 $ go get gopkg.in/yaml.v2
