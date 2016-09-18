@@ -30,12 +30,13 @@ func NewCommand(name string, transform command.Command, clean command.Command, c
 }
 
 func (b *BuildCommand) Usage() error {
-  output, err := b.docker.Help()
-  if err != nil {
-    return err
-  }
+	output, err := b.docker.Help()
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Usage: doget build [OPTIONS] PATH | URL | - \n")
+	fmt.Println("Transform, then build an image from Dockerfile and traits\n")
 
 	// Make these look like docker build --help output
 	fmt.Println("  --doget-no-cache=false          Do not use cache for traits")
