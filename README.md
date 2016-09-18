@@ -25,3 +25,27 @@ $ doget build -t [tag] .
 ```
 
 This will resolve traits, downloading if necessary, and pass on the created Dockerfile to *docker build*.
+
+## Using traits
+
+Traits are just regular *Dockerfile*s stored somewhere on GitHub or BitBucket. You can reference them by using a `domain/vendor/repo[/dir][:version]` syntax. 
+
+**Example:** `github.com/docker-library/php/7.0` will use the Dockerfile in [docker-library/php >> 7.0](https://github.com/docker-library/php/tree/master/7.0)
+
+By default, this will check out the master branch. To reference a version, you can either use commit SHAs, branch names or tags and append them, e.g. `github.com/thekid/traits/xp:v1.0.0`.
+
+## Authoring traits
+
+As said, traits are nothing special. However, if you're creating Dockerfiles specifically designed for reuse, here are some things to keep in mind:
+
+* Always add a *FROM* instruction to express what your Dockerfile extends from.
+* If your traits provides an official base image, use *PROVIDES* and add its name.
+* You can use *USE* to declare transitive dependencies. If you do so, you should reference a specific version, otherwise you risk problems at a later point.
+* Think twice about adding an *ENTRYPOINT* or *CMD*, people will typically want to do this themselves.
+* Test it using a continuous integration system like Travis CI
+
+## Caching
+
+DoGet caches downloaded traits inside the working directory. Their contents are stored zipped in a file called `doget_modules.zip`. To force a fresh download, simply remove this file.
+
+You can check the file in to your SCM - this way, you can create repeatable builds even if the remote locations should not be reachable at build time.
