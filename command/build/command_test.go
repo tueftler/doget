@@ -2,40 +2,41 @@ package build
 
 import (
 	"errors"
-	"github.com/tueftler/doget/dockerfile"
-	"reflect"
 	"testing"
+
+	"github.com/tueftler/doget/dockerfile"
+	. "gopkg.in/check.v1"
 )
 
-func assertEqual(expect, actual interface{}, t *testing.T) {
-	if !reflect.DeepEqual(expect, actual) {
-		t.Errorf("Items not equal:\nexpected %q\nhave     %q\n", expect, actual)
-	}
-}
+func Test(t *testing.T) { TestingT(t) }
 
-func Test_splitArgsRecognizesTransformArgs(t *testing.T) {
+type TestSuite struct{}
+
+var _ = Suite(&TestSuite{})
+
+func (s *TestSuite) Test_splitArgsRecognizesTransformArgs(c *C) {
 	transformArgs, _ := split([]string{"--doget-no-cache=true", "-t", "foo:bar", "--no-cache=true"})
-	assertEqual([]string{"-no-cache", "true"}, transformArgs, t)
+	c.Assert([]string{"-no-cache", "true"}, DeepEquals, transformArgs)
 }
 
-func Test_splitArgsRecognizesTransformArgWithoutValue(t *testing.T) {
+func (s *TestSuite) Test_splitArgsRecognizesTransformArgWithoutValue(c *C) {
 	transformArgs, _ := split([]string{"-t", "foo:bar", "--doget-clean", "--no-cache=true"})
-	assertEqual([]string{"-clean"}, transformArgs, t)
+	c.Assert([]string{"-clean"}, DeepEquals, transformArgs)
 }
 
-func Test_splitArgsRecognizesDockerBuildArgs(t *testing.T) {
+func (s *TestSuite) Test_splitArgsRecognizesDockerBuildArgs(c *C) {
 	_, dockerArgs := split([]string{"-t", "foo:bar", "--no-cache=true", "--doget-no-cache=true", "."})
-	assertEqual([]string{"-t", "foo:bar", "--no-cache=true", "."}, dockerArgs, t)
+	c.Assert([]string{"-t", "foo:bar", "--no-cache=true", "."}, DeepEquals, dockerArgs)
 }
 
-func Test_transformArgsAreEmptyWhenOnlyDockerArgsPresent(t *testing.T) {
+func (s *TestSuite) Test_transformArgsAreEmptyWhenOnlyDockerArgsPresent(c *C) {
 	transformArgs, _ := split([]string{"--no-cache=true"})
-	assertEqual([]string{}, transformArgs, t)
+	c.Assert([]string{}, DeepEquals, transformArgs)
 }
 
-func Test_dockerArgsAreEmptyWhenOnlyTransformArgsPresent(t *testing.T) {
+func (s *TestSuite) Test_dockerArgsAreEmptyWhenOnlyTransformArgsPresent(c *C) {
 	_, dockerArgs := split([]string{"--doget-no-cache=true"})
-	assertEqual([]string{}, dockerArgs, t)
+	c.Assert([]string{}, DeepEquals, dockerArgs)
 }
 
 type mock struct {
@@ -65,58 +66,58 @@ func (m *mock) Run(parser *dockerfile.Parser, args []string) error {
 	return m.err
 }
 
-func Test_dockerBuildNotExecutedWhenTransformFails(t *testing.T) {
+func (s *TestSuite) Test_dockerBuildNotExecutedWhenTransformFails(c *C) {
 	transform := &mock{executed: false, err: errors.New("an error")}
 	docker := &mock{executed: false}
 	clean := &mock{executed: false}
 	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."})
-	assertEqual(false, docker.executed, t)
-	assertEqual(false, clean.executed, t)
+	c.Assert(false, Equals, docker.executed)
+	c.Assert(false, Equals, clean.executed)
 }
 
-func Test_returnsTransformError(t *testing.T) {
+func (s *TestSuite) Test_returnsTransformError(c *C) {
 	err := errors.New("an error")
 	transform := &mock{executed: false, err: err}
 	docker := &mock{executed: false}
 	clean := &mock{executed: false}
 
-	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}), t)
+	c.Assert(err, DeepEquals, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}))
 }
 
-func Test_cleanNotExecutedWhenDockerBuildFails(t *testing.T) {
+func (s *TestSuite) Test_cleanNotExecutedWhenDockerBuildFails(c *C) {
 	transform := &mock{executed: false}
 	docker := &mock{executed: false, err: errors.New("an error")}
 	clean := &mock{executed: false}
 	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."})
-	assertEqual(false, clean.executed, t)
+	c.Assert(false, Equals, clean.executed)
 }
 
-func Test_returnsDockerBuildError(t *testing.T) {
+func (s *TestSuite) Test_returnsDockerBuildError(c *C) {
 	err := errors.New("an error")
 	transform := &mock{executed: false}
 	docker := &mock{executed: false, err: err}
 	clean := &mock{executed: false}
 
-	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}), t)
+	c.Assert(err, DeepEquals, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}))
 }
 
-func Test_returnsCleanError(t *testing.T) {
+func (s *TestSuite) Test_returnsCleanError(c *C) {
 	err := errors.New("an error")
 	transform := &mock{executed: false}
 	docker := &mock{executed: false}
 	clean := &mock{executed: false, err: err}
 
-	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}), t)
+	c.Assert(err, DeepEquals, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}))
 }
 
-func Test_executedAllWhenNoneFails(t *testing.T) {
+func (s *TestSuite) Test_executedAllWhenNoneFails(c *C) {
 	transform := &mock{executed: false}
 	docker := &mock{executed: false}
 	clean := &mock{executed: false}
 	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."})
-	assertEqual(true, transform.executed, t)
-	assertEqual(true, docker.executed, t)
-	assertEqual(true, clean.executed, t)
+	c.Assert(true, Equals, transform.executed)
+	c.Assert(true, Equals, docker.executed)
+	c.Assert(true, Equals, clean.executed)
 }
 
 var showsUsage = []struct {
@@ -124,17 +125,18 @@ var showsUsage = []struct {
 }{
 	{[]string{}},
 	{[]string{"-help"}},
-	{[]string{"--help"}},
+  {[]string{"--help"}},
 }
-func Test_showsUsage(t *testing.T) {
+
+func (s *TestSuite) Test_showsUsage(c *C) {
 	for _, tt := range showsUsage {
 		transform := &mock{executed: false}
 		docker := &mock{executed: false}
 		clean := &mock{executed: false}
 
 		NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), tt.args)
-		assertEqual(false, transform.executed, t)
-		assertEqual(false, docker.executed, t)
-		assertEqual(false, clean.executed, t)
+		c.Check(false, Equals, transform.executed, Commentf("For %v", tt.args))
+		c.Check(false, Equals, docker.executed, Commentf("For %v", tt.args))
+		c.Check(false, Equals, clean.executed, Commentf("For %v", tt.args))
 	}
 }
