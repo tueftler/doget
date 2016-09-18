@@ -3,6 +3,10 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+## 1.0.1 / 2016-09-18
+
+* Fixed `build` subcommand show output of docker build - @thekid
+
 ## 1.0.0 / 2016-09-16
 
 * Added *build* command which wraps around `docker build`. See PR #25
