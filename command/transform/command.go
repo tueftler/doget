@@ -30,15 +30,13 @@ func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 	noCache := c.flags.Bool("no-cache", false, "Do not use cache")
 	c.flags.Parse(args)
 
-	fmt.Fprintf(os.Stderr, "> Running transform(%q -> %q)\n", *input, *output)
-
 	if *performClean {
 		defer os.RemoveAll(config.Vendordir)
 	}
 
 	storage := config.Vendordir + ".zip"
 	if _, err := os.Stat(storage); err == nil {
-		fmt.Fprint(os.Stderr, "> Preparing cache...")
+		fmt.Fprint(os.Stderr, "Preparing...")
 		if err := unzip(storage, ".", strings.NewReplacer()); err != nil {
 			return err
 		}
@@ -51,11 +49,11 @@ func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 	err := transformation.Run(parser)
 
 	if err == nil {
-		fmt.Fprint(os.Stderr, "> Caching...")
+		fmt.Fprint(os.Stderr, "Caching...")
 		if err := mkzip(config.Vendordir, storage); err != nil {
 			return err
 		}
-		fmt.Fprintln(os.Stderr, " OK")
+		fmt.Fprintln(os.Stderr, " Done")
 	}
 
 	if err != nil {
@@ -75,6 +73,5 @@ func (c *TransformCommand) Run(parser *dockerfile.Parser, args []string) error {
 		fmt.Fprintf(out, buf.String())
 	}
 
-	fmt.Fprintf(os.Stderr, "Done\n")
 	return nil
 }

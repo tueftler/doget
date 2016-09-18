@@ -88,12 +88,13 @@ func prefix(paths, base string) string {
 }
 
 func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Dockerfile, base string, provided Provided) error {
+	fmt.Fprintf(os.Stderr, "Transform : %s\n", file.Source)
 	for _, statement := range file.Statements {
 		switch statement.(type) {
 		case *provides.Statement:
 			for _, image := range statement.(*provides.Statement).Images() {
 				provided.add(image)
-				fmt.Printf("  Provides %q\n", image)
+				fmt.Fprintf(os.Stderr, " ---> PROVIDES %s\n", image)
 			}
 			break
 
@@ -107,13 +108,12 @@ func (t *Transformation) write(parser *dockerfile.Parser, file *dockerfile.Docke
 
 			path, err = fetch(origin, t.UseCache, func(transferred, total int64) {
 				percentage := float64(transferred) / float64(total)
-				finished := int(math.Max(percentage*float64(20), 20))
+				finished := int(math.Max(percentage*float64(40), 40))
 				fmt.Fprintf(
 					os.Stderr,
-					"\r> Fetching %s: [%s%s] %.2fkB",
-					origin.String(),
+					"\r ---> Transferring [%s%s] %.2fkB",
 					strings.Repeat("#", finished),
-					strings.Repeat("_", 20-finished),
+					strings.Repeat("_", 40-finished),
 					float64(transferred)/float64(1024),
 				)
 			})

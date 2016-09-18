@@ -84,6 +84,7 @@ func fetch(origin *use.Origin, useCache bool, progress func(transferred, total i
 		doDownload = true
 	}
 
+	fmt.Fprintf(os.Stderr, " ---> USE %s\n", origin.String())
 	if doDownload {
 		if err := os.MkdirAll(target, 0755); err != nil {
 			return "", err
@@ -99,7 +100,7 @@ func fetch(origin *use.Origin, useCache bool, progress func(transferred, total i
 
 		os.Remove(zip)
 	} else {
-		fmt.Printf("> Using %s", origin.String())
+		fmt.Fprint(os.Stderr, " ---> (cached)")
 	}
 
 	return filepath.Join(target, origin.Dir), nil
