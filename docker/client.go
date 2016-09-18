@@ -7,6 +7,7 @@ import (
 
 // Client represents the docker daemon
 type Client interface {
+	Help() ([]byte, error)
 	Build(args []string) error
 }
 
@@ -19,6 +20,12 @@ type dockerCli struct {
 	binary string
 }
 
+// Help runs docker build help and returns its output
+func (d *dockerCli) Help() ([]byte, error) {
+	return exec.Command(d.binary, "help", "build").Output()
+}
+
+// Help executes docker build with the given arguments
 func (d *dockerCli) Build(args []string) error {
 	c := exec.Command(d.binary, prependBuild(args)...)
 	c.Stdin = os.Stdin

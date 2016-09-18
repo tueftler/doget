@@ -3,6 +3,10 @@ DoGet change log
 
 ## ?.?.? / ????-??-??
 
+* Added usage for `build` command which includes both DoGet specific
+  flags as well as *docker build* usage
+  (@thekid)
+
 ## 1.0.1 / 2016-09-18
 
 * Fixed `build` subcommand show output of docker build - @thekid
