@@ -24,7 +24,7 @@ To use the tool, copy the above into a file called `Dockerfile.in` and type:
 $ doget build -t [tag] .
 ```
 
-This will resolve traits, downloading if necessary, and pass on the created Dockerfile to *docker build*.
+This will resolve traits, downloading if necessary, and pass on the created Dockerfile (*and any command line options*) to `docker build`.
 
 ## Using traits
 
@@ -43,9 +43,16 @@ As said, traits are nothing special. However, if you're creating Dockerfiles spe
 * You can use *USE* to declare transitive dependencies. If you do so, you should reference a specific version, otherwise you risk problems at a later point.
 * Think twice about adding an *ENTRYPOINT* or *CMD*, people will typically want to do this themselves.
 * Test it using a continuous integration system like Travis CI
+* Use semantic versioning and keep a changelog
 
 ## Caching
 
 DoGet caches downloaded traits inside the working directory. Their contents are stored zipped in a file called `doget_modules.zip`. To force a fresh download, simply remove this file.
 
 You can check the file in to your SCM - this way, you can create repeatable builds even if the remote locations should not be reachable at build time.
+
+## Contributing
+
+To contribute to DoGet, use the GitHub way - fork, hack, and submit a pull request! :octocat:
+
+**Enjoy!**
