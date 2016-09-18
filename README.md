@@ -21,7 +21,7 @@ DoGet extends Dockerfile syntax with `PROVIDES` and `USE` instructions. The `USE
 To use the tool, copy the above into a file called `Dockerfile.in` and type:
 
 ```sh
-$ doget build
+$ doget build -t [tag] .
 ```
 
 This will resolve traits, downloading if necessary, and pass on the created Dockerfile to *docker build*.
