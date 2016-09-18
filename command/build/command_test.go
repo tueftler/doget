@@ -119,24 +119,22 @@ func Test_executedAllWhenNoneFails(t *testing.T) {
 	assertEqual(true, clean.executed, t)
 }
 
-func Test_showsUsage(t *testing.T) {
-	transform := &mock{executed: false}
-	docker := &mock{executed: false}
-	clean := &mock{executed: false}
-
-	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{})
-	assertEqual(false, transform.executed, t)
-	assertEqual(false, docker.executed, t)
-	assertEqual(false, clean.executed, t)
+var showsUsage = []struct {
+	args []string
+}{
+	{[]string{}},
+	{[]string{"-help"}},
+	{[]string{"--help"}},
 }
+func Test_showsUsage(t *testing.T) {
+	for _, tt := range showsUsage {
+		transform := &mock{executed: false}
+		docker := &mock{executed: false}
+		clean := &mock{executed: false}
 
-func Test_showsUsageWhenGivenHelp(t *testing.T) {
-	transform := &mock{executed: false}
-	docker := &mock{executed: false}
-	clean := &mock{executed: false}
-
-	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"--help"})
-	assertEqual(false, transform.executed, t)
-	assertEqual(false, docker.executed, t)
-	assertEqual(false, clean.executed, t)
+		NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), tt.args)
+		assertEqual(false, transform.executed, t)
+		assertEqual(false, docker.executed, t)
+		assertEqual(false, clean.executed, t)
+	}
 }
