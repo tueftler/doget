@@ -46,7 +46,7 @@ By default, this will check out the master branch. To reference a version, you c
 
 ## Authoring traits
 
-As said, traits are nothing special. However, if you're creating Dockerfiles specifically designed for reuse, here are some things to keep in mind:
+As said, traits are nothing special. Just commit and push them to make them available to the public. However, if you're creating Dockerfiles specifically designed for reuse, here are some things to keep in mind:
 
 * Always add a *FROM* instruction to express what your Dockerfile extends from.
 * If your traits provides an official base image, use *PROVIDES* and add its name.
