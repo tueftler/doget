@@ -125,7 +125,7 @@ var showsUsage = []struct {
 }{
 	{[]string{}},
 	{[]string{"-help"}},
-  {[]string{"--help"}},
+	{[]string{"--help"}},
 }
 
 func (s *TestSuite) Test_showsUsage(c *C) {
