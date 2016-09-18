@@ -63,6 +63,6 @@ You can check the file in to your SCM - this way, you can create repeatable buil
 
 ## Contributing
 
-To contribute to DoGet, use the GitHub way - fork, hack, and submit a pull request! :octocat:
+To contribute to DoGet, use the :octocat: way - fork, hack, and submit a pull request! If you're unsure where to start, look out for [issues](https://github.com/tueftler/doget/issues) labeled with **help wanted**.
 
 **Enjoy!**
