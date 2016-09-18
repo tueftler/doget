@@ -26,6 +26,16 @@ $ doget build -t [tag] .
 
 This will resolve traits, downloading if necessary, and pass on the created Dockerfile (*and any command line options*) to `docker build`.
 
+## Installing
+
+You will need [Go 1.6](https://golang.org/) installed. Then, type:
+
+```sh
+$ go get gopkg.in/yaml.v2
+$ go get github.com/tueftler/doget
+$ go build -o ~/bin/doget github.com/tueftler/doget
+```
+
 ## Using traits
 
 Traits are just regular *Dockerfile*s stored somewhere on GitHub or BitBucket. You can reference them by using a `domain/vendor/repo[/dir][:version]` syntax. 
