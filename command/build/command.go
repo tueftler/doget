@@ -38,9 +38,9 @@ func (b *BuildCommand) Usage() error {
 	fmt.Println("Usage: doget build [OPTIONS] PATH | URL | - \n")
 
 	// Make these look like docker build --help output
-	fmt.Println("  --doget-no-cache                Do not use cache")
-	fmt.Println("  --doget-in                      Input (default: Dockerfile.in)")
-	fmt.Println("  --doget-out                     Output (default: Dockerfile)")
+	fmt.Println("  --doget-no-cache=false          Do not use cache for traits")
+	fmt.Println("  --doget-in=Dockerfile.in        Input")
+	fmt.Println("  --doget-out=Dockerfile          Output, combine with --file")
 
 	// Only print flags usage
 	for _, line := range strings.Split(string(output), "\n") {
