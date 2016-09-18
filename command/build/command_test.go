@@ -52,6 +52,10 @@ func (m *mock) Build(args []string) error {
 	return nil
 }
 
+func (m *mock) Help() ([]byte, error) {
+	return []byte{}, nil
+}
+
 func (m *mock) Init(name string) {
 	// intentionally empty
 }
@@ -65,7 +69,7 @@ func Test_dockerBuildNotExecutedWhenTransformFails(t *testing.T) {
 	transform := &mock{executed: false, err: errors.New("an error")}
 	docker := &mock{executed: false}
 	clean := &mock{executed: false}
-	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{})
+	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."})
 	assertEqual(false, docker.executed, t)
 	assertEqual(false, clean.executed, t)
 }
@@ -76,14 +80,14 @@ func Test_returnsTransformError(t *testing.T) {
 	docker := &mock{executed: false}
 	clean := &mock{executed: false}
 
-	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{}), t)
+	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}), t)
 }
 
 func Test_cleanNotExecutedWhenDockerBuildFails(t *testing.T) {
 	transform := &mock{executed: false}
 	docker := &mock{executed: false, err: errors.New("an error")}
 	clean := &mock{executed: false}
-	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{})
+	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."})
 	assertEqual(false, clean.executed, t)
 }
 
@@ -93,7 +97,7 @@ func Test_returnsDockerBuildError(t *testing.T) {
 	docker := &mock{executed: false, err: err}
 	clean := &mock{executed: false}
 
-	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{}), t)
+	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}), t)
 }
 
 func Test_returnsCleanError(t *testing.T) {
@@ -102,15 +106,37 @@ func Test_returnsCleanError(t *testing.T) {
 	docker := &mock{executed: false}
 	clean := &mock{executed: false, err: err}
 
-	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{}), t)
+	assertEqual(err, NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."}), t)
 }
 
 func Test_executedAllWhenNoneFails(t *testing.T) {
 	transform := &mock{executed: false}
 	docker := &mock{executed: false}
 	clean := &mock{executed: false}
-	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{})
+	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"."})
 	assertEqual(true, transform.executed, t)
 	assertEqual(true, docker.executed, t)
 	assertEqual(true, clean.executed, t)
+}
+
+func Test_showsUsage(t *testing.T) {
+	transform := &mock{executed: false}
+	docker := &mock{executed: false}
+	clean := &mock{executed: false}
+
+	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{})
+	assertEqual(false, transform.executed, t)
+	assertEqual(false, docker.executed, t)
+	assertEqual(false, clean.executed, t)
+}
+
+func Test_showsUsageWhenGivenHelp(t *testing.T) {
+	transform := &mock{executed: false}
+	docker := &mock{executed: false}
+	clean := &mock{executed: false}
+
+	NewCommand("build", transform, clean, docker).Run(dockerfile.NewParser(), []string{"--help"})
+	assertEqual(false, transform.executed, t)
+	assertEqual(false, docker.executed, t)
+	assertEqual(false, clean.executed, t)
 }
