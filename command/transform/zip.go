@@ -29,7 +29,14 @@ func mkzip(src, dest string) error {
 			}
 			defer o.Close()
 
-			z, err := w.Create(filepath.ToSlash(path))
+			h, err := zip.FileInfoHeader(info)
+			if err != nil {
+				return err
+			}
+
+			// modify to provide full path name
+			h.Name = filepath.ToSlash(path)
+			z, err := w.CreateHeader(h)
 			if err != nil {
 				return err
 			}
