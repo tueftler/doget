@@ -77,7 +77,7 @@ func download(uri, file string, progress func(transferred, total int64)) (int64,
 
 func fetch(origin *use.Origin, useCache bool, progress func(transferred, total int64)) (string, error) {
 	target := filepath.Join(config.Vendordir, origin.Host, origin.Vendor, origin.Name)
-	zip := filepath.Join(target, origin.Version+".zip")
+	zip := filepath.Join(target, strings.Replace(origin.Version, "/", "-", -1)+".zip")
 
 	doDownload := !useCache
 	if _, err := os.Stat(target); err != nil {

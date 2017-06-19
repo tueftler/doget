@@ -126,6 +126,7 @@ var showsUsage = []struct {
 	{[]string{"-help"}},
 	{[]string{"--help"}},
 }
+
 func Test_showsUsage(t *testing.T) {
 	for _, tt := range showsUsage {
 		transform := &mock{executed: false}
