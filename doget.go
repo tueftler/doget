@@ -19,7 +19,7 @@ import (
 
 var (
 	commands = make(map[string]command.Command)
-	version  = "1.0.3-dev"
+	version  = "1.0.3"
 )
 
 func init() {
