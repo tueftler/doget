@@ -58,6 +58,19 @@ CMD /bin/bash
 	assertParsed(4, func(d Dockerfile) field { return len(d.Statements) }, file, t)
 }
 
+func Test_parsingIssue30(t *testing.T) {
+	file := `
+RUN set -ex; \
+# ... and verify that it actually worked for one of the alternatives we care about
+	update-alternatives --query java | grep -q 'Status: manual'
+
+# see CA_CERTIFICATES_JAVA_VERSION notes above
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
+`
+	// expect 3 statements: RUN, comment, RUN
+	assertParsed(3, func(d Dockerfile) field { return len(d.Statements) }, file, t)
+}
+
 func Test_parsingIssue15(t *testing.T) {
 	file := `RUN sed -ri "s!^(\#\s*)?(elasticsearch\.url:).*!\2 'http://elasticsearch:9200'!" /opt/kibana/config/kibana.yml`
 

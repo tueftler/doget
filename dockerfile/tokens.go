@@ -128,6 +128,9 @@ func (t *Tokens) NextLine() string {
 			break
 		} else {
 			buf.WriteRune(r)
+			if '\n' == r && continued {
+				continued = false
+			}
 		}
 	}
 	return buf.String()
